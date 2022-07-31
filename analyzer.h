@@ -39,20 +39,13 @@ class definition
 private:
    
 public:
-   void plot(TH1F * hist1 , TH1F * hist2, string histname){
-      TCanvas *c = new TCanvas();
-      hist1->SetLineColor(kRed);
-      hist1->SetMarkerStyle(8);
-      hist1->Draw();
-      hist2->SetLineColor(kBlack);
-      hist2->SetMarkerStyle(8);
-      hist2->Draw("SAME");
-      auto legend = new TLegend(0.1,0.7,0.48,0.9);
-      legend->AddEntry(hist1,"South","l");
-      legend->AddEntry(hist2,"North","l");
-      legend->Draw();
-      c->SaveAs(("plot/"+histname+".pdf").c_str());
+   
+   float energy(float pz, float rapidity){
+      float energy ;
+      energy = pz*TMath::TanH(rapidity);
+      return energy;
    }
+   
    float pT( float px, float py){
       return sqrt(px*px+ py*py);
    }
@@ -72,8 +65,91 @@ public:
       projection = (vec_A.Dot(vec_B)/vec_B.Mag2())*vec_B;
       return projection;
    }
+   void plot(TH1F * hist1 , TH1F * hist2, string histname){
+      TCanvas *c = new TCanvas();
+      hist1->SetLineColor(kRed);
+      hist1->SetMarkerStyle(8);
+      hist1->Draw();
+      hist2->SetLineColor(kBlack);
+      hist2->SetMarkerStyle(8);
+      hist2->Draw("SAME");
+      auto legend = new TLegend(0.1,0.7,0.48,0.9);
+      legend->AddEntry(hist1,"South","l");
+      legend->AddEntry(hist2,"North","l");
+      legend->Draw();
+      c->SaveAs(("plot/"+histname+".pdf").c_str());
+   }
    
+   void plot_north(TH1F * hist1 , TH1F * hist2, string histname){
+      TCanvas *c = new TCanvas();
+      hist1->SetLineColor(kRed);
+      hist1->SetMarkerStyle(8);
+      hist1->Draw();
+      hist2->SetLineColor(kBlack);
+      hist2->SetMarkerStyle(8);
+      hist2->Draw("SAME");
+      auto legend = new TLegend(0.1,0.7,0.48,0.9);
+      legend->SetHeader("North","L");
+      legend->AddEntry(hist1,"#mu^{+}","l");
+      legend->AddEntry(hist2,"#mu^{-}","l");
+      legend->Draw();
+      c->SaveAs(("../plot/"+histname+".pdf").c_str());
+   }
+   void plot_south(TH1F * hist1 , TH1F * hist2, string histname){
+      TCanvas *c = new TCanvas();
+      hist1->SetLineColor(kRed);
+      hist1->SetMarkerStyle(8);
+      hist1->Draw();
+      hist2->SetLineColor(kBlack);
+      hist2->SetMarkerStyle(8);
+      hist2->Draw("SAME");
+      auto legend = new TLegend(0.1,0.7,0.48,0.9);
+      legend->SetHeader("South","L");
+      legend->AddEntry(hist1,"#mu^{+}","l");
+      legend->AddEntry(hist2,"#mu^{-}","l");
+      legend->Draw();
+      c->SaveAs(("../plot/"+histname+".pdf").c_str());
+   }
    
+   void plot_PT(TH1F * hist1 , TH1F * hist2, TH1F * hist3, TH1F * hist4, string histname){
+      TCanvas *c = new TCanvas();
+      hist1->SetLineColor(kRed);
+      hist1->SetMarkerStyle(8);
+      hist1->Draw();
+      hist2->SetLineColor(kBlack);
+      hist2->SetMarkerStyle(8);
+      hist2->Draw("SAME");
+      hist3->SetLineColor(kBlue);
+      hist3->SetMarkerStyle(8);
+      hist3->Draw("SAME");
+      hist4->SetLineColor(kGreen+2);
+      hist4->SetMarkerStyle(8);
+      hist4->Draw("SAME");
+      auto legend = new TLegend(0.68,0.72,0.98,0.92);
+      legend->SetHeader("All","C");
+      legend->AddEntry(hist1,"South #mu^{+}","l");
+      legend->AddEntry(hist2,"South #mu^{-}","l");
+      legend->AddEntry(hist3,"North #mu^{+}","l");
+      legend->AddEntry(hist4,"North #mu^{-}","l");
+      legend->Draw();
+      c->SaveAs(("../plot/"+histname+".pdf").c_str());
+   }
+   
+   void plot_trmom(TH1F * hist1 , TH1F * hist2, string histname){
+      TCanvas *c = new TCanvas();
+      hist1->SetLineColor(kRed);
+      hist1->SetMarkerStyle(8);
+      hist1->Draw();
+      hist2->SetLineColor(kBlack);
+      hist2->SetMarkerStyle(8);
+      hist2->Draw("SAME");
+      auto legend = new TLegend(0.68,0.72,0.98,0.92);
+      legend->SetHeader("South","L");
+      legend->AddEntry(hist1,"#mu^{+}","l");
+      legend->AddEntry(hist2,"#mu^{-}","l");
+      legend->Draw();
+      c->SaveAs(("../plot/"+histname+".pdf").c_str());
+   }
    
 };
 #endif // PHYSICS_OBSERVALES_H
