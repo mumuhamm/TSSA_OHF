@@ -53,6 +53,27 @@ public:
       legend->Draw();
       c->SaveAs(("plot/"+histname+".pdf").c_str());
    }
+   float pT( float px, float py){
+      return sqrt(px*px+ py*py);
+   }
+   float costheta(TVector3 vec_A, TVector3 vec_B){
+      float cosineTheta;
+      cosineTheta =  (vec_A.Dot( vec_B))/((vec_A.Mag())*(vec_B.Mag()));
+      return cosineTheta;
+   }
+   float cosinverse(TVector3 vec_A, TVector3 vec_B){
+      float cosineTheta, Theta;
+      cosineTheta =  (vec_A.Dot( vec_B))/((vec_A.Mag())*(vec_B.Mag()));
+      Theta = TMath::ACos(cosineTheta);
+      return Theta;
+   }
+   TVector3 vectorProjection(TVector3 vec_A, TVector3 vec_B){
+      TVector3 projection;
+      projection = (vec_A.Dot(vec_B)/vec_B.Mag2())*vec_B;
+      return projection;
+   }
+   
+   
    
 };
 #endif // PHYSICS_OBSERVALES_H

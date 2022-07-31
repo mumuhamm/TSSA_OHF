@@ -46,7 +46,7 @@ void analyzer(string filename){
    TH1F *delta_theta_h_s = new TH1F("delta_theta_h_s", "#delta#theta = #theta_{MuTr} - #theta_{vtx};#delta#theta (rad);Number of events", 50, -2, 2 );
    TH1F *scaled_dtheta_h_s = new TH1F("scaled_dtheta_h_s", "p#bullet(#theta_{MuTr} - #theta_{vtx});p#bullet(#theta_{MuTr} - #theta_{vtx}) (rad.GeV);Number of events", 100, -25, 25 );
    TH1F *r_ref_h_s = new TH1F("r_ref_h_s", "r_{ref} ; r_{ref} (cm); Number of events", 100, 0, 700);
-   TH1F *chi2_trkzvtx_h_s = new TH1F("chi2_trkzvtx_h_s", "#chi^{2} (r_{trk}#to z_{vtx}) ; #chi^{2}; Number of events", 100, 0, 50);
+   TH1F *chi2_trkzvtx_h_s = new TH1F("chi2_trkzvtx_h_s", "#chi^{2} (r_{trk}#to z_{vtx}) ; #chi^{2}; Number of events", 100, 0, 200);
    
    
    
@@ -61,7 +61,7 @@ void analyzer(string filename){
    TH1F *delta_theta_h_n = new TH1F("delta_theta_h_n", "#delta#theta = #theta_{MuTr} - #theta_{vtx};#delta#theta (rad);Number of events", 50, -2, 2);
    TH1F *scaled_dtheta_h_n = new TH1F("scaled_dtheta_h_n", "p#bullet(#theta_{MuTr} - #theta_{vtx});p#bullet(#theta_{MuTr} - #theta_{vtx}) (rad.GeV);Number of events", 100, -25, 25 );
    TH1F *r_ref_h_n = new TH1F("r_ref_h_n", "r_{ref} ; r_{ref} (cm); Number of events", 100, 0, 700);
-   TH1F *chi2_trkzvtx_h_n = new TH1F("chi2_trkzvtx_h_n", "#chi^{2} (r_{trk}#to z_{vtx}) ; #chi^{2}; Number of events", 100, 0, 50);
+   TH1F *chi2_trkzvtx_h_n = new TH1F("chi2_trkzvtx_h_n", "#chi^{2} (r_{trk}#to z_{vtx}) ; #chi^{2}; Number of events", 100, 0, 200);
    
    
    
@@ -100,9 +100,9 @@ void analyzer(string filename){
    mutree->SetBranchAddress("smx0",&x0);
    mutree->SetBranchAddress("smy0",&y0);
    mutree->SetBranchAddress("smz0",&z0);
-   mutree->SetBranchAddress("evtvtx_x",&vtx_x);
-   mutree->SetBranchAddress("evtvtx_y",&vtx_y);
-   mutree->SetBranchAddress("evtvtx_z",&vtx_z);
+   mutree->SetBranchAddress("evtvtxx",&vtx_x);
+   mutree->SetBranchAddress("evtvtxy",&vtx_y);
+   mutree->SetBranchAddress("evtvtxz",&vtx_z);
    mutree->SetBranchAddress("smxst1",&x_st1);
    mutree->SetBranchAddress("smyst1",&y_st1);
    mutree->SetBranchAddress("smidx",&idx);
@@ -121,18 +121,18 @@ void analyzer(string filename){
          vec_vtx_s.SetXYZ(vtx_x, vtx_y, vtx_z);
          vec_vtx_z_s.SetXYZ(0, 0, vtx_z);
          vec_mutr_s.SetXYZ(x_st1, y_st1, 0);
-         pt_s = sqrt(px*px+ py*py);
-         costheta_vtx_s = (vec_trk_s.Dot( vec_vtx_s))/((vec_trk_s.Mag())*(vec_vtx_s.Mag()));
-         costheta_mutr_s = (vec_trk_s.Dot( vec_mutr_s))/((vec_trk_s.Mag())*(vec_mutr_s.Mag()));
-         theta_vtx_s = TMath::ACos(costheta_vtx_s);
-         theta_mutr_s = TMath::ACos(costheta_mutr_s);
+         pt_s = call.pT(px, py);
+         costheta_vtx_s = call.costheta(vec_trk_s, vec_vtx_s);
+         costheta_mutr_s = call.costheta(vec_trk_s, vec_mutr_s);
+         theta_vtx_s = call.cosinverse(vec_trk_s, vec_vtx_s);
+         theta_mutr_s = call.cosinverse(vec_trk_s, vec_mutr_s);
          float delta_theta_inter_s = theta_mutr_s - theta_vtx_s ;
          if(!(delta_theta_inter_s != delta_theta_inter_s))
             {
             delta_theta_s = delta_theta_inter_s;
             scaled_dtheta_s = (three_mom_s.Mag())*delta_theta_s;
             }//theta cross check
-         vec_proj_s = (vec_trk_s.Dot(vec_vtx_z_s)/vec_vtx_z_s.Mag2())*vec_vtx_z_s;
+         vec_proj_s = call.vectorProjection(vec_trk_s,vec_vtx_z_s );//(vec_trk_s.Dot(vec_vtx_z_s)/vec_vtx_z_s.Mag2())*vec_vtx_z_s;
          sq_norm_z_s = vec_proj_s.Mag2();
          if(!(sq_norm_z_s !=sq_norm_z_s)){ chi2_trk_vtx_s = sq_norm_z_s;}
          if (idx != -8888 && idy != -8888    ){
@@ -167,18 +167,18 @@ void analyzer(string filename){
          vec_vtx_n.SetXYZ(vtx_x, vtx_y, vtx_z);
          vec_vtx_z_n.SetXYZ(0, 0, vtx_z);
          vec_mutr_n.SetXYZ(x_st1, y_st1, 0);
-         pt_n = sqrt(px*px+ py*py);
-         costheta_vtx_n = (vec_trk_n.Dot( vec_vtx_n))/((vec_trk_n.Mag())*(vec_vtx_n.Mag()));
-         costheta_mutr_n = (vec_trk_n.Dot( vec_mutr_n))/((vec_trk_n.Mag())*(vec_mutr_n.Mag()));
-         theta_vtx_n = TMath::ACos(costheta_vtx_n);
-         theta_mutr_n = TMath::ACos(costheta_mutr_n);
+         pt_n = call.pT(px, py);
+         costheta_vtx_n = call.costheta(vec_trk_n, vec_vtx_n);
+         costheta_mutr_n = call.costheta(vec_trk_n, vec_mutr_n);
+         theta_vtx_n = call.cosinverse(vec_trk_n, vec_vtx_n);
+         theta_mutr_n = call.cosinverse(vec_trk_n, vec_mutr_n);
          float delta_theta_inter_n = theta_mutr_n - theta_vtx_n ;
          if(!(delta_theta_inter_n != delta_theta_inter_n))
             {
             delta_theta_n = delta_theta_inter_n;
             scaled_dtheta_n = (three_mom_n.Mag())*delta_theta_n;
             }//theta cross check
-         vec_proj_n = (vec_trk_n.Dot(vec_vtx_z_n)/vec_vtx_z_n.Mag2())*vec_vtx_z_n;
+         vec_proj_n = call.vectorProjection(vec_trk_n,vec_vtx_z_n );//(vec_trk_n.Dot(vec_vtx_z_n)/vec_vtx_z_n.Mag2())*vec_vtx_z_n;
          sq_norm_z_n = vec_proj_n.Mag2();
          if(!(sq_norm_z_n !=sq_norm_z_n)){ chi2_trk_vtx_n = sq_norm_z_n;}
          if (idx != -8888 && idy != -8888    ){ r_ref_n = sqrt ((ipx-idx)*(ipx-idx) + (ipy-idy)*(ipy-idy));}
