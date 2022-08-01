@@ -88,7 +88,7 @@ public:
       hist2->SetLineColor(kBlack);
       hist2->SetMarkerStyle(8);
       hist2->Draw("SAME");
-      auto legend = new TLegend(0.1,0.7,0.48,0.9);
+      auto legend = new TLegend(0.15,0.6,0.35,0.8);
       legend->SetHeader("North","L");
       legend->AddEntry(hist1,"#mu^{+}","l");
       legend->AddEntry(hist2,"#mu^{-}","l");
@@ -103,7 +103,7 @@ public:
       hist2->SetLineColor(kBlack);
       hist2->SetMarkerStyle(8);
       hist2->Draw("SAME");
-      auto legend = new TLegend(0.1,0.7,0.48,0.9);
+      auto legend = new TLegend(0.15,0.6,0.35,0.8);
       legend->SetHeader("South","L");
       legend->AddEntry(hist1,"#mu^{+}","l");
       legend->AddEntry(hist2,"#mu^{-}","l");
@@ -125,7 +125,7 @@ public:
       hist4->SetLineColor(kGreen+2);
       hist4->SetMarkerStyle(8);
       hist4->Draw("SAME");
-      auto legend = new TLegend(0.68,0.72,0.98,0.92);
+      auto legend = new TLegend(0.6,0.55,0.8,0.85);
       legend->SetHeader("All","C");
       legend->AddEntry(hist1,"South #mu^{+}","l");
       legend->AddEntry(hist2,"South #mu^{-}","l");
@@ -143,7 +143,7 @@ public:
       hist2->SetLineColor(kBlack);
       hist2->SetMarkerStyle(8);
       hist2->Draw("SAME");
-      auto legend = new TLegend(0.68,0.72,0.98,0.92);
+      auto legend = new TLegend(0.6,0.6,0.8,0.8);
       legend->SetHeader("South","L");
       legend->AddEntry(hist1,"#mu^{+}","l");
       legend->AddEntry(hist2,"#mu^{-}","l");

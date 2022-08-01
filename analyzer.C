@@ -47,6 +47,8 @@ void analyzer(string filename){
    TH1F *scaled_dtheta_h_s_mp = new TH1F("scaled_dtheta_h_s_mp", "p#bullet(#theta_{MuTr} - #theta_{vtx});p#bullet(#theta_{MuTr} - #theta_{vtx}) (rad.GeV);Number of events", 100, -25, 25 );
    TH1F *r_ref_h_s_mp = new TH1F("r_ref_h_s_mp", "r_{ref} ; r_{ref} (cm); Number of events", 100, 0, 700);
    TH1F *chi2_trkzvtx_h_s_mp = new TH1F("chi2_trkzvtx_h_s_mp", "#chi^{2} (r_{trk}#to z_{vtx}) ; #chi^{2}; Number of events", 100, 0, 200);
+   TH1F *phi_trk_h_s_mp = new TH1F("phi_trk_h_s_mp","#phi_{trk}; #phi_{trk} (rad); Number of events", 100,-TMath::Pi(), TMath::Pi());
+   
    
    
    TH1F *mupt_h_s_mn = new TH1F("mupt_h_s_mn", "mupt_h; p_{T} (GeV); Number of events", 50, 0, 7);//pt_bins
@@ -58,6 +60,7 @@ void analyzer(string filename){
    TH1F *scaled_dtheta_h_s_mn = new TH1F("scaled_dtheta_h_s_mn", "p#bullet(#theta_{MuTr} - #theta_{vtx});p#bullet(#theta_{MuTr} - #theta_{vtx}) (rad.GeV);Number of events", 100, -25, 25 );
    TH1F *r_ref_h_s_mn = new TH1F("r_ref_h_s_mn", "r_{ref} ; r_{ref} (cm); Number of events", 100, 0, 700);
    TH1F *chi2_trkzvtx_h_s_mn = new TH1F("chi2_trkzvtx_h_s_mn", "#chi^{2} (r_{trk}#to z_{vtx}) ; #chi^{2}; Number of events", 100, 0, 200);
+   TH1F *phi_trk_h_s_mn = new TH1F("phi_trk_h_s_mn","#phi_{trk}; #phi_{trk} (rad); Number of events", 100,-TMath::Pi(), TMath::Pi());
    
       //---------------------------------------------------------------------------------------------------------------------------North Variable
    
@@ -70,6 +73,7 @@ void analyzer(string filename){
    TH1F *scaled_dtheta_h_n_mp = new TH1F("scaled_dtheta_h_n_mp", "p#bullet(#theta_{MuTr} - #theta_{vtx});p#bullet(#theta_{MuTr} - #theta_{vtx}) (rad.GeV);Number of events", 100, -25, 25 );
    TH1F *r_ref_h_n_mp = new TH1F("r_ref_h_n_mp", "r_{ref} ; r_{ref} (cm); Number of events", 100, 0, 700);
    TH1F *chi2_trkzvtx_h_n_mp = new TH1F("chi2_trkzvtx_h_n_mp", "#chi^{2} (r_{trk}#to z_{vtx}) ; #chi^{2}; Number of events", 100, 0, 200);
+   TH1F *phi_trk_h_n_mp = new TH1F("phi_trk_h_n_mp","#phi_{trk}; #phi_{trk} (rad); Number of events", 100,-TMath::Pi(), TMath::Pi());
    
    
    
@@ -82,9 +86,10 @@ void analyzer(string filename){
    TH1F *scaled_dtheta_h_n_mn = new TH1F("scaled_dtheta_h_n_mn", "p#bullet(#theta_{MuTr} - #theta_{vtx});p#bullet(#theta_{MuTr} - #theta_{vtx}) (rad.GeV);Number of events", 100, -25, 25 );
    TH1F *r_ref_h_n_mn = new TH1F("r_ref_h_n_mn", "r_{ref} ; r_{ref} (cm); Number of events", 100, 0, 700);
    TH1F *chi2_trkzvtx_h_n_mn = new TH1F("chi2_trkzvtx_h_n_mn", "#chi^{2} (r_{trk}#to z_{vtx}) ; #chi^{2}; Number of events", 100, 0, 200);
+   TH1F *phi_trk_h_n_mn = new TH1F("phi_trk_h_n_mn","#phi_{trk}; #phi_{trk} (rad); Number of events", 100,-TMath::Pi(), TMath::Pi());
    
    
-   
+  
    
    TFile *mufile = new TFile((filename).c_str());
    TTree *mutree = (TTree*)mufile->Get("analysis");
@@ -92,7 +97,7 @@ void analyzer(string filename){
    std::cout<<" Number of entries for the moment : \t"<< n_entries <<"\n";
    TLorentzVector *mu_4vec = new TLorentzVector();
    float px, py, pz, pt, pT_cut_val, rapidity, energy, mass, phi, x0, y0, z0, vtx_x, vtx_y, vtx_z, x_st1, y_st1, idx, idy;
-   float trchi2, idchi2, dg0, ddg0;
+   float trchi2, idchi2, dg0, ddg0, phi_trk;
    float  costheta_vtx, theta_vtx, costheta_mutr, theta_mutr, delta_theta, scaled_dtheta;
    float r_ref, chi2_trk_vtx,  sq_norm_z;
    int trhits, idhits;
@@ -129,10 +134,10 @@ void analyzer(string filename){
    mutree->SetBranchAddress("smcharge",&muoncharge);
    
    
-   for (int i = 0; i<=n_entries; ++i){
+   for (int ientry = 0; ientry<=n_entries; ++ientry){
       
-      mutree->GetEntry(i);
-      
+      mutree->GetEntry(ientry);
+      if (ientry%10000==0) cout << "processing event " << ientry << "/" << n_entries <<"\n";
          //std::cout<<"muon charge :::     "<<muoncharge<<"\n";
       
       energy = pz*TMath::TanH(rapidity);
@@ -159,11 +164,15 @@ void analyzer(string filename){
       if (idx != -8888 && idy != -8888    ){
          r_ref = sqrt ((ipx-idx)*(ipx-idx) + (ipy-idy)*(ipy-idy));
       }
+      
+      
       if( trhits > 12 && trchi2 < 10 && idhits > 6 && idchi2 < 5
          && ddg0 < 8 && dg0 < 20 && (fabs(rapidity)>1.2 || fabs(rapidity)< 2.0)
-         && (pt > 1.25 || pt < 10.0)){
+         && (pt > 1.25 || pt < 5.0)){
          
          pT_cut_val = pt;
+         phi_trk = vec_trk.Phi();
+         //std::cout << " phi value   ::     "<<phi_trk<<"\n";
       }
       
       
@@ -180,6 +189,7 @@ void analyzer(string filename){
             delta_theta_h_s_mn->Fill(delta_theta);
             scaled_dtheta_h_s_mn->Fill(scaled_dtheta);
             r_ref_h_s_mn->Fill(r_ref);
+            phi_trk_h_s_mn->Fill(phi_trk);
          }//negative muo charge
          
          if(muoncharge==1){
@@ -192,6 +202,7 @@ void analyzer(string filename){
             delta_theta_h_s_mp->Fill(delta_theta);
             scaled_dtheta_h_s_mp->Fill(scaled_dtheta);
             r_ref_h_s_mp->Fill(r_ref);
+            phi_trk_h_s_mp->Fill(phi_trk);
          }
          
       }//pz - south
@@ -208,6 +219,7 @@ void analyzer(string filename){
             delta_theta_h_n_mn->Fill(delta_theta);
             scaled_dtheta_h_n_mn->Fill(scaled_dtheta);
             r_ref_h_n_mn->Fill(r_ref);
+            phi_trk_h_n_mn->Fill(phi_trk);
          }
          if(muoncharge==1){
             mupt_h_n_mp->Fill(pT_cut_val);
@@ -219,6 +231,7 @@ void analyzer(string filename){
             delta_theta_h_n_mp->Fill(delta_theta);
             scaled_dtheta_h_n_mp->Fill(scaled_dtheta);
             r_ref_h_n_mp->Fill(r_ref);
+            phi_trk_h_n_mp->Fill(phi_trk);
          }
          
          
@@ -240,6 +253,7 @@ void analyzer(string filename){
    call.plot_south(scaled_dtheta_h_s_mp, scaled_dtheta_h_s_mn, "scaled_dtheta_south");
    call.plot_south(r_ref_h_s_mp, r_ref_h_s_mn, "r_ref_south");
    call.plot_south(chi2_trkzvtx_h_s_mp, chi2_trkzvtx_h_s_mn, "chi2_trkzvtx_south");
+   call.plot_south(phi_trk_h_s_mp, phi_trk_h_s_mn, "phi_trk_south");
    call.plot_trmom(mupt_h_s_mp, mupt_h_s_mn, "mupt_south");
    
    call.plot_north(delta_theta_h_n_mp, delta_theta_h_n_mn, "delta_theta_north");
@@ -250,8 +264,10 @@ void analyzer(string filename){
    call.plot_north(scaled_dtheta_h_n_mp, scaled_dtheta_h_n_mn, "scaled_dtheta_north");
    call.plot_north(r_ref_h_n_mp, r_ref_h_n_mn, "r_ref_north");
    call.plot_north(chi2_trkzvtx_h_n_mp, chi2_trkzvtx_h_n_mn, "chi2_trkzvtx_north");
+   call.plot_south(phi_trk_h_n_mp, phi_trk_h_n_mn, "phi_trk_north");
    call.plot_trmom(mupt_h_n_mp, mupt_h_n_mn, "mupt_north");
    
    
    
+ 
 }
