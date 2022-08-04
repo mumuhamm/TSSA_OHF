@@ -80,7 +80,7 @@ void Variable_histograms(string procnum, string outfile){
 }}*/
     //TFile * fn1 = new TFile(("../../data/"+procnum+".root").c_str());
     for (unsigned i = 421815 ; i <= 432008; ++i){
-    TFile *fn1 = new TFile(Form("../../data/%d.root", i));
+    TFile *fn1 = new TFile(Form("../../../data/%d.root", i));
     if ((!fn1) || (fn1->IsZombie())) continue;
     TTree * singMu = (TTree*)fn1->Get("T");
     TLeaf* l_nsm; //index parameter
@@ -101,7 +101,8 @@ void Variable_histograms(string procnum, string outfile){
     TLeaf* l_smnfvtxtracklets; TLeaf* l_smnfvtxclusterscone; TLeaf* l_smfvtxtrackid ; TLeaf* l_smvtxindex; 
     TLeaf* l_smnmatching; TLeaf* l_hitpattern ; TLeaf* l_smcovmutstal; TLeaf* l_smxfvtxproj; TLeaf* l_smyfvtxproj;
     TLeaf* l_smxmutproj; TLeaf* l_smymutproj; TLeaf* l_smpxfvtxproj; TLeaf* l_smpyfvtxproj; TLeaf* l_drfvtxmutrsigma;
-    TLeaf* l_smdphifvtxmutrsigma; 
+    TLeaf* l_smdphifvtxmutrsigma;
+    TLeaf* l_smlastgap; TLeaf* l_smmaxres_sigma; TLeaf* l_smtrackid; 
     TLeaf* l_bbcn; TLeaf* l_bbcs; TLeaf* l_bbcqn; TLeaf*  l_bbcqs; TLeaf* l_bbcz; TLeaf* l_bbczerr;
     TLeaf* l_bbct0; TLeaf* l_bbcts; TLeaf* l_bbctn;
     TLeaf* l_evtbbcz; TLeaf* l_evtbbczerr; TLeaf* l_evtvtxx; TLeaf* l_evtvtxxerr; TLeaf* l_evtvtxy; TLeaf* l_evtvtxyerr;
@@ -197,7 +198,10 @@ void Variable_histograms(string procnum, string outfile){
     l_evtvtxyerr             = (TLeaf*)singMu->GetLeaf("Evt_vtxY_Err"); 
     l_evtvtxz                = (TLeaf*)singMu->GetLeaf("Evt_vtxZ");
     l_evtvtxzerr             = (TLeaf*)singMu->GetLeaf("Evt_vtxZ_Err"); 
-    
+    l_smmaxres_sigma         = (TLeaf*)singMu->GetLeaf("SingleMuons.maxres_sigma");
+    l_smtrackid              = (TLeaf*)singMu->GetLeaf("SingleMuons.track_id");
+    l_smlastgap              = (TLeaf*)singMu->GetLeaf("SingleMuons.lastgap");
+
 
 
     //------Variable type initialization 
@@ -209,8 +213,8 @@ void Variable_histograms(string procnum, string outfile){
     int smfvtxtrackid, smvtxindex, smhitpattern;   
     int smtrhits , smidhits, smntrhits, smnidhits, bbcn, bbcs; 
     bool smmuid1d; bool smmuid1s; bool smcharge;
-    float evtbbcz, evtbbczerr, evtvtxx, evtvtxxerr, evtvtxy, evtvtxyerr, evtvtxz, evtvtxzerr; 
-
+    float smmaxres_sigma, evtbbcz, evtbbczerr, evtvtxx, evtvtxxerr, evtvtxy, evtvtxyerr, evtvtxz, evtvtxzerr; 
+    int smlastgap, smtrackid;
 
 
 
@@ -248,9 +252,9 @@ void Variable_histograms(string procnum, string outfile){
     analysis->Branch("smidhits",&smidhits,"smidhits/I");
     analysis->Branch("smntrhits",&smntrhits,"smntrhits/I");
     analysis->Branch("smnidhits",&smnidhits,"smnidhits/I");
-    analysis->Branch("smmuid1d",&smmuid1d,"smmuid1d/B");
-    analysis->Branch("smmuid1s",&smmuid1s,"smmuid1s/B");
-    analysis->Branch("smcharge",&smcharge,"smcharge/B"); 
+    analysis->Branch("smmuid1d",&smmuid1d,"smmuid1d/O");
+    analysis->Branch("smmuid1s",&smmuid1s,"smmuid1s/O");
+    analysis->Branch("smcharge",&smcharge,"smcharge/O"); 
     analysis->Branch("smdthetafvtx",&smdthetafvtx,"smdthetafvtx/F");
     analysis->Branch("smdphifvtx",&smdphifvtx,"smdphifvtx/F");
     analysis->Branch("bbcn",&bbcn,"bbcn/I");
@@ -270,7 +274,11 @@ void Variable_histograms(string procnum, string outfile){
     analysis->Branch("evtvtxyerr", &evtvtxyerr, "evtvtxyerr/F");
     analysis->Branch("evtvtxz", &evtvtxz, "evtvtxz/F");
     analysis->Branch("evtvtxzerr", &evtvtxzerr, "evtvtxzerr/F");
-    
+    //analysis->Branch("smmaxres_sigma", &smmaxres_sigma, "smmaxres_sigma/F");
+    analysis->Branch("smtrackid", &smtrackid, "smtrackid/I");
+    analysis->Branch("smlastgap", &smlastgap, "smlastgap/I");
+    analysis->Branch("smhitpattern", &smhitpattern, "smhitpattern/I");
+
    
 
 
@@ -331,13 +339,16 @@ void Variable_histograms(string procnum, string outfile){
         smdcaphi = float(l_smdcaphi->GetValue(imuon));
         smfvtxtrackid = float(l_smfvtxtrackid->GetValue(imuon));//std::cout<<smfvtxtrackid<<"\n";
         smvtxindex = float(l_smvtxindex->GetValue(imuon));
-        smhitpattern = float(l_smhitpattern->GetValue(imuon));
+        smhitpattern = int(l_smhitpattern->GetValue(imuon));//smhitpattern
+        //smmaxres_sigma = float(l_smmaxres_sigma->GetValue(imuon));
+        smtrackid = int(l_smtrackid->GetValue(imuon));
+        smlastgap = int(l_smlastgap->GetValue(imuon));
+
+
+
+
         
-
-
-
         
-        //analysis->Fill();
         smddg0_h->Fill(smddg0);
         smpx_h->Fill(smpx);
         smpy_h->Fill(smpy);
