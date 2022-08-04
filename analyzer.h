@@ -135,7 +135,7 @@ public:
       c->SaveAs(("../plot/"+histname+".pdf").c_str());
    }
    
-   void plot_trmom(TH1F * hist1 , TH1F * hist2, string histname){
+   void plot_trmom_south(TH1F * hist1 , TH1F * hist2, string histname){
       TCanvas *c = new TCanvas();
       hist1->SetLineColor(kRed);
       hist1->SetMarkerStyle(8);
@@ -145,6 +145,22 @@ public:
       hist2->Draw("SAME");
       auto legend = new TLegend(0.6,0.6,0.8,0.8);
       legend->SetHeader("South","L");
+      legend->AddEntry(hist1,"#mu^{+}","l");
+      legend->AddEntry(hist2,"#mu^{-}","l");
+      legend->Draw();
+      c->SaveAs(("../plot/"+histname+".pdf").c_str());
+   }
+   
+   void plot_trmom_north(TH1F * hist1 , TH1F * hist2, string histname){
+      TCanvas *c = new TCanvas();
+      hist1->SetLineColor(kRed);
+      hist1->SetMarkerStyle(8);
+      hist1->Draw();
+      hist2->SetLineColor(kBlack);
+      hist2->SetMarkerStyle(8);
+      hist2->Draw("SAME");
+      auto legend = new TLegend(0.6,0.6,0.8,0.8);
+      legend->SetHeader("North","L");
       legend->AddEntry(hist1,"#mu^{+}","l");
       legend->AddEntry(hist2,"#mu^{-}","l");
       legend->Draw();
