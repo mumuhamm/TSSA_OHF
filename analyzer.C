@@ -1,3 +1,7 @@
+/* Author : Muhammad Alibordi
+
+ */
+
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -254,7 +258,7 @@ void analyzer(string filename){
    call.plot_south(r_ref_h_s_mp, r_ref_h_s_mn, "r_ref_south");
    call.plot_south(chi2_trkzvtx_h_s_mp, chi2_trkzvtx_h_s_mn, "chi2_trkzvtx_south");
    call.plot_south(phi_trk_h_s_mp, phi_trk_h_s_mn, "phi_trk_south");
-   call.plot_trmom(mupt_h_s_mp, mupt_h_s_mn, "mupt_south");
+   call.plot_trmom_south(mupt_h_s_mp, mupt_h_s_mn, "mupt_south");
    
    call.plot_north(delta_theta_h_n_mp, delta_theta_h_n_mn, "delta_theta_north");
    call.plot_north(costheta_vtx_h_n_mp, costheta_vtx_h_n_mn, "costheta_vtx_north");
@@ -264,8 +268,8 @@ void analyzer(string filename){
    call.plot_north(scaled_dtheta_h_n_mp, scaled_dtheta_h_n_mn, "scaled_dtheta_north");
    call.plot_north(r_ref_h_n_mp, r_ref_h_n_mn, "r_ref_north");
    call.plot_north(chi2_trkzvtx_h_n_mp, chi2_trkzvtx_h_n_mn, "chi2_trkzvtx_north");
-   call.plot_south(phi_trk_h_n_mp, phi_trk_h_n_mn, "phi_trk_north");
-   call.plot_trmom(mupt_h_n_mp, mupt_h_n_mn, "mupt_north");
+   call.plot_north(phi_trk_h_n_mp, phi_trk_h_n_mn, "phi_trk_north");
+   call.plot_trmom_north(mupt_h_n_mp, mupt_h_n_mn, "mupt_north");
    
    
    
