@@ -1,3 +1,12 @@
+/*
+
+Author : Muhammad Alibordi 
+A simple macro , runs in a root session on 
+the pico DST files primarily produced by Sanghwa Park
+The Kinematc Varibales are concerned only to the Open Muon Heavy Flavour 
+decays process for the moment. Gathering the kinematics of TSSA analysis
+
+*/
 #include <TTree.h>
 #include <TROOT.h>
 #include <TFile.h>
@@ -107,6 +116,12 @@ void Variable_histograms(string procnum, string outfile){
     TLeaf* l_bbct0; TLeaf* l_bbcts; TLeaf* l_bbctn;
     TLeaf* l_evtbbcz; TLeaf* l_evtbbczerr; TLeaf* l_evtvtxx; TLeaf* l_evtvtxxerr; TLeaf* l_evtvtxy; TLeaf* l_evtvtxyerr;
     TLeaf* l_evtvtxz; TLeaf* l_evtvtxzerr;
+    TLeaf* l_lvl1_trigraw; TLeaf* l_lvl1_triglive; TLeaf* l_lvl1_trigscaled; 
+    TLeaf* l_lvl1_clock_cross; TLeaf* l_lvl1_rbits; TLeaf* l_beamclk;     
+
+
+
+
 
     l_nsm                    = (TLeaf*)singMu->GetLeaf("nSingleMuons");
     l_smddg0                 = (TLeaf*)singMu->GetLeaf("SingleMuons.DDG0");
@@ -142,6 +157,7 @@ void Variable_histograms(string procnum, string outfile){
     l_smy0                   = (TLeaf*)singMu->GetLeaf("SingleMuons.y0");
     l_smz0                   = (TLeaf*)singMu->GetLeaf("SingleMuons.z0");
     l_smcov                  = (TLeaf*)singMu->GetLeaf("SingleMuons.cov");
+//forward vertex information 
     l_smx0fvtx               = (TLeaf*)singMu->GetLeaf("SingleMuons.x0_fvtx");
     l_smy0fvtx               = (TLeaf*)singMu->GetLeaf("SingleMuons.y0_fvtx");
     l_smz0fvtx               = (TLeaf*)singMu->GetLeaf("SingleMuons.z0_fvtx");
@@ -167,7 +183,7 @@ void Variable_histograms(string procnum, string outfile){
     l_smmtootrkindex         = (TLeaf*)singMu->GetLeaf("SingleMuons.mutoo_trk_index");
     l_smchi2fvtxmutr         = (TLeaf*)singMu->GetLeaf("SingleMuons.chi2_fvtxmutr");
     l_smdcaphi               = (TLeaf*)singMu->GetLeaf("SingleMuons.dca_phi");
-    l_smclusterssize          = (TLeaf*)singMu->GetLeaf("SingleMuons.clusters_size1");
+    l_smclusterssize         = (TLeaf*)singMu->GetLeaf("SingleMuons.clusters_size1");
     l_smnfvtxtrackletscone   = (TLeaf*)singMu->GetLeaf("SingleMuons.nfvtx_tracklets_cone");
     l_smnfvtxtracklets       = (TLeaf*)singMu->GetLeaf("SingleMuons.nfvtx_tracklets");
     l_smnfvtxclusterscone    = (TLeaf*)singMu->GetLeaf("SingleMuons.nfvtx_clusters_cone");
@@ -181,6 +197,7 @@ void Variable_histograms(string procnum, string outfile){
     l_smymutproj             = (TLeaf*)singMu->GetLeaf("SingleMuons.y_mutproj");
     l_smpxfvtxproj           = (TLeaf*)singMu->GetLeaf("SingleMuons.px_fvtxproj");
     l_smpyfvtxproj           = (TLeaf*)singMu->GetLeaf("SingleMuons.py_fvtxproj");
+//bbc vertex     
     l_bbcn                   = (TLeaf*)singMu->GetLeaf("bbcn");
     l_bbcs                   = (TLeaf*)singMu->GetLeaf("bbcs");
     l_bbcqn                  = (TLeaf*)singMu->GetLeaf("bbcqn");
@@ -201,6 +218,17 @@ void Variable_histograms(string procnum, string outfile){
     l_smmaxres_sigma         = (TLeaf*)singMu->GetLeaf("SingleMuons.maxres_sigma");
     l_smtrackid              = (TLeaf*)singMu->GetLeaf("SingleMuons.track_id");
     l_smlastgap              = (TLeaf*)singMu->GetLeaf("SingleMuons.lastgap");
+//trigger and clock 
+    l_lvl1_trigraw           = (TLeaf*)singMu->GetLeaf("lvl1_trigraw");
+    l_lvl1_triglive          = (TLeaf*)singMu->GetLeaf("lvl1_triglive");
+    l_lvl1_trigscaled        = (TLeaf*)singMu->GetLeaf("lvl1_trigscaled");
+    l_lvl1_clock_cross       = (TLeaf*)singMu->GetLeaf("lvl1_clock_cross");
+    l_lvl1_rbits             = (TLeaf*)singMu->GetLeaf("lvl1_rbits");
+    l_beamclk                = (TLeaf*)singMu->GetLeaf("beamclk");
+
+
+
+
 
 
 
@@ -208,15 +236,15 @@ void Variable_histograms(string procnum, string outfile){
     int nmuons ;
     float smddg0, smpx, smpy, smpz, smrapidity, smdg0, smds3, smtrchi2, smidchi2, smxst1, smxst2, smxst3 , smyst1, smyst2, smyst3, smidx, smidy, smst1px, smst1py, smst1pz;
     float smdcar, smdcaz, smx0, smy0, smz0, smcov;
-    float smx0fvtxmutr, smy0fvtxmutr, smz0fvtxmutr, smpxfvtxmutr, smpyfvtxmutr, smpzfvtxmutr, smdphifvtx, smdrfvtx, smdthetafvtx, smchi2fvtx, smclusterssize, smdcaphi;
+    float smx0fvtxmutr, smy0fvtxmutr, smz0fvtxmutr, smpxfvtxmutr, smpyfvtxmutr, smpzfvtxmutr, smdphifvtx, smdrfvtx, smdthetafvtx, smchi2fvtx,  smdcaphi;
+    float smx0fvtx, smy0fvtx, smz0fvtx, smpxfvtx, smpyfvtx, smpzfvtx, smxfvtxproj , smyfvtxproj, smxmutproj,smymutproj, smpxfvtxproj, smpyfvtxproj;
     float bbcqn, bbcqs, bbcz, bbczerr, bbct0, bbcts, bbctn;
     int smfvtxtrackid, smvtxindex, smhitpattern;   
-    int smtrhits , smidhits, smntrhits, smnidhits, bbcn, bbcs; 
+    int smtrhits , smidhits, smntrhits, smnidhits, smclusterssize, bbcn, bbcs; 
     bool smmuid1d; bool smmuid1s; bool smcharge;
     float smmaxres_sigma, evtbbcz, evtbbczerr, evtvtxx, evtvtxxerr, evtvtxy, evtvtxyerr, evtvtxz, evtvtxzerr; 
     int smlastgap, smtrackid;
-
-
+    int lvl1_trigraw, lvl1_triglive, lvl1_trigscaled,lvl1_clock_cross, lvl1_rbits, beamclk;
 
 
     TFile *f = new TFile(Form("/direct/phenix+u/alibordi/hf_outputs/analysis_preliminary_%d.root",i),"recreate");
@@ -255,8 +283,6 @@ void Variable_histograms(string procnum, string outfile){
     analysis->Branch("smmuid1d",&smmuid1d,"smmuid1d/O");
     analysis->Branch("smmuid1s",&smmuid1s,"smmuid1s/O");
     analysis->Branch("smcharge",&smcharge,"smcharge/O"); 
-    analysis->Branch("smdthetafvtx",&smdthetafvtx,"smdthetafvtx/F");
-    analysis->Branch("smdphifvtx",&smdphifvtx,"smdphifvtx/F");
     analysis->Branch("bbcn",&bbcn,"bbcn/I");
     analysis->Branch("bbcs",&bbcs,"bbcs/I");
     analysis->Branch("bbcqn",&bbcqn,"bbcqn/F");
@@ -274,12 +300,45 @@ void Variable_histograms(string procnum, string outfile){
     analysis->Branch("evtvtxyerr", &evtvtxyerr, "evtvtxyerr/F");
     analysis->Branch("evtvtxz", &evtvtxz, "evtvtxz/F");
     analysis->Branch("evtvtxzerr", &evtvtxzerr, "evtvtxzerr/F");
-    //analysis->Branch("smmaxres_sigma", &smmaxres_sigma, "smmaxres_sigma/F");
+    analysis->Branch("smmaxres_sigma", &smmaxres_sigma, "smmaxres_sigma/F");
     analysis->Branch("smtrackid", &smtrackid, "smtrackid/I");
     analysis->Branch("smlastgap", &smlastgap, "smlastgap/I");
     analysis->Branch("smhitpattern", &smhitpattern, "smhitpattern/I");
-
+    analysis->Branch("lvl1_trigraw", &lvl1_trigraw, "lvl1_trigraw/I");
+    analysis->Branch("lvl1_triglive", &lvl1_triglive, "lvl1_triglive/I");
+    analysis->Branch("lvl1_trigscaled", &lvl1_trigscaled, "lvl1_trigscaled/I");
+    analysis->Branch("lvl1_clock_cross", &lvl1_clock_cross, "lvl1_clock_cross/I");
+    analysis->Branch("lvl1_rbits", &lvl1_rbits, "lvl1_rbits/I");
+    analysis->Branch("beamclk", &beamclk, "beamclk/I");
    
+
+//forward vertex information 
+analysis->Branch("smx0fvtxmutr",&smx0fvtxmutr,"smx0fvtxmutr/F");
+analysis->Branch("smy0fvtxmutr",&smy0fvtxmutr,"smy0fvtxmutr/F");
+analysis->Branch("smz0fvtxmutr",&smz0fvtxmutr,"smz0fvtxmutr/F");
+analysis->Branch("smpxfvtxmutr",&smpxfvtxmutr,"smpxfvtxmutr/F");
+analysis->Branch("smpyfvtxmutr",&smpyfvtxmutr,"smpyfvtxmutr/F");
+analysis->Branch("smpzfvtxmutr",&smpzfvtxmutr,"smpzfvtxmutr/F");
+analysis->Branch("smdcaphi",&smdcaphi,"smdcaphi/F");
+analysis->Branch("smdrfvtx",&smdrfvtx,"smdrfvtx/F");
+analysis->Branch("smchi2fvtx",&smchi2fvtx,"smchi2fvtx/F");
+analysis->Branch("smdthetafvtx",&smdthetafvtx,"smdthetafvtx/F");
+analysis->Branch("smdphifvtx",&smdphifvtx,"smdphifvtx/F");
+analysis->Branch("smclusterssize",&smclusterssize,"smclusterssize/I");
+analysis->Branch("smfvtxtrackid",&smclusterssize,"smfvtxtrackid/I");
+analysis->Branch("smx0fvtx",&smx0fvtx,"smx0fvtx/F");
+analysis->Branch("smy0fvtx",&smy0fvtx,"smy0fvtx/F");
+analysis->Branch("smz0fvtx",&smz0fvtx,"smz0fvtx/F");
+analysis->Branch("smpxfvtx",&smpxfvtx,"smpxfvtx/F");
+analysis->Branch("smpyfvtx",&smpyfvtx,"smpyfvtx/F");
+analysis->Branch("smpzfvtx",&smpzfvtx,"smpzfvtx/F");
+analysis->Branch("smxfvtxproj",&smxfvtxproj,"smxfvtxproj/F");
+analysis->Branch("smyfvtxproj",&smyfvtxproj,"smyfvtxproj/F");
+analysis->Branch("smxmutproj",&smxmutproj,"smxmutproj/F");
+analysis->Branch("smymutproj",&smymutproj,"smymutproj/F");
+analysis->Branch("smpxfvtxproj",&smpxfvtxproj,"smpxfvtxproj/F");
+analysis->Branch("smpyfvtxproj",&smpyfvtxproj,"smpyfvtxproj/F");
+
 
 
   Int_t nentries = singMu->GetEntries(); 
@@ -325,29 +384,38 @@ void Variable_histograms(string procnum, string outfile){
         smy0 = float(l_smy0->GetValue(imuon));
         smz0 = float(l_smz0->GetValue(imuon));
         smcov = float(l_smcov->GetValue(imuon));
-        smx0fvtxmutr = float(l_smx0fvtxmutr->GetValue(imuon));
-        smy0fvtxmutr = float(l_smy0fvtxmutr->GetValue(imuon));
-        smz0fvtxmutr = float(l_smz0fvtxmutr->GetValue(imuon));
-        smpxfvtxmutr = float(l_smpxfvtxmutr->GetValue(imuon));
-        smpyfvtxmutr = float(l_smpyfvtxmutr->GetValue(imuon));
-        smpzfvtxmutr = float(l_smpzfvtxmutr->GetValue(imuon));
-        smdphifvtx = float(l_smdphifvtx->GetValue(imuon));
-        smdrfvtx = float(l_smdrfvtx->GetValue(imuon));
-        smdthetafvtx = float(l_smdthetafvtx->GetValue(imuon));
-        smchi2fvtx = float(l_smchi2fvtx->GetValue(imuon));
-        smclusterssize = float(l_smclusterssize->GetValue(imuon));
-        smdcaphi = float(l_smdcaphi->GetValue(imuon));
-        smfvtxtrackid = float(l_smfvtxtrackid->GetValue(imuon));//std::cout<<smfvtxtrackid<<"\n";
-        smvtxindex = float(l_smvtxindex->GetValue(imuon));
-        smhitpattern = int(l_smhitpattern->GetValue(imuon));//smhitpattern
-        //smmaxres_sigma = float(l_smmaxres_sigma->GetValue(imuon));
+	smvtxindex = int(l_smvtxindex->GetValue(imuon));
+        smhitpattern = int(l_smhitpattern->GetValue(imuon));
+        smmaxres_sigma = float(l_smmaxres_sigma->GetValue(imuon));
         smtrackid = int(l_smtrackid->GetValue(imuon));
         smlastgap = int(l_smlastgap->GetValue(imuon));
 
 
-
-
-        
+        smx0fvtxmutr = float(l_smx0fvtxmutr->GetValue(imuon));
+	smy0fvtxmutr = float(l_smy0fvtxmutr->GetValue(imuon));
+	smz0fvtxmutr = float(l_smz0fvtxmutr->GetValue(imuon));
+	smpxfvtxmutr = float(l_smpxfvtxmutr->GetValue(imuon));
+	smpyfvtxmutr = float(l_smpyfvtxmutr->GetValue(imuon));
+	smpzfvtxmutr = float(l_smpzfvtxmutr->GetValue(imuon));
+	smdcaphi = float(l_smdcaphi->GetValue(imuon));
+	smdrfvtx = float(l_smdrfvtx->GetValue(imuon));
+	smchi2fvtx = float(l_smchi2fvtx->GetValue(imuon));
+	smdthetafvtx = float(l_smdthetafvtx->GetValue(imuon));
+	smdphifvtx = float(l_smdphifvtx->GetValue(imuon));
+	smclusterssize = float(l_smclusterssize->GetValue(imuon));
+	smfvtxtrackid = int(l_smfvtxtrackid->GetValue(imuon));
+	smx0fvtx = float(l_smx0fvtx->GetValue(imuon));
+	smy0fvtx = float(l_smy0fvtx->GetValue(imuon));
+	smz0fvtx = float(l_smz0fvtx->GetValue(imuon));
+	smpxfvtx = float(l_smpxfvtx->GetValue(imuon));
+	smpyfvtx = float(l_smpyfvtx->GetValue(imuon));
+	smpzfvtx = float(l_smpzfvtx->GetValue(imuon));
+	smxfvtxproj = float(l_smxfvtxproj->GetValue(imuon));
+	smyfvtxproj = float(l_smyfvtxproj->GetValue(imuon));
+	smxmutproj = float(l_smxmutproj->GetValue(imuon));
+	smymutproj = float(l_smymutproj->GetValue(imuon));
+	smpxfvtxproj = float(l_smpxfvtxproj->GetValue(imuon));
+	smpyfvtxproj = float(l_smpyfvtxproj->GetValue(imuon));       
         
         smddg0_h->Fill(smddg0);
         smpx_h->Fill(smpx);
@@ -414,6 +482,12 @@ void Variable_histograms(string procnum, string outfile){
     evtvtxyerr = float(l_evtvtxyerr->GetValue());
     evtvtxz = float(l_evtvtxz->GetValue());
     evtvtxzerr = float(l_evtvtxzerr->GetValue());
+    lvl1_trigraw = int(l_lvl1_trigraw->GetValue());
+    lvl1_triglive = int(l_lvl1_triglive->GetValue());
+    lvl1_trigscaled = int(l_lvl1_trigscaled->GetValue());
+    lvl1_clock_cross = int(l_lvl1_clock_cross->GetValue());
+    lvl1_rbits = int(l_lvl1_rbits->GetValue());
+    beamclk = int(l_beamclk->GetValue());
 
 
 
