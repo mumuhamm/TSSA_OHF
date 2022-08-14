@@ -26,47 +26,6 @@ decays process for the moment. Gathering the kinematics of TSSA analysis
 #include <fstream>
 
 
-const int NB = 120;
-
-int default_qa;
-int runnumber;
-int fillnumber;
-int xingshift;
-int badrun_flag;
-int patternblue[NB];
-int patternyell[NB];
-int badbunch_qa[NB];
-
-long long scaler_bbcvtxcut[NB];
-long long scaler_bbcnovtx[NB];
-long long scaler_zdcwide[NB];
-long long scaler_zdcnarrow[NB];
-
-float b_pol, y_pol;
-float b_stat, y_stat;
-float b_syst, y_syst;
-
-int pattern_number;
-int group;
-
-std::vector<int> base1;
-std::vector<int> base2;
-std::vector<int> base3;
-std::vector<int> base4;
-std::vector<int> base1a;
-std::vector<int> base2a;
-std::vector<int> base3a;
-std::vector<int> base4a;
-std::vector<int> v_ptb;
-std::vector<int> v_pty;
-
-int FindPattern(vector<int> &ptb, vector<int> &pty);
-int FindGroup(int pattern);
-void DefineBasePatterns();
-
-int verb = 0;
-
-
 
 
 
@@ -76,11 +35,6 @@ int verb = 0;
 
 
 void Variable_histograms(string procnum, string runlist){
-
-	DefineBasePatterns();
-	gSystem->Load("libuspin.so");
-	SpinDBContent spin_cont;
-	SpinDBOutput spin_out("phnxrc");
 
     TH1F *smddg0_h = new TH1F("smddg0_h", "smddg0_h;DDG0_{#mu}; Number of events (a.u.)", 100, 0, 25.0);
     TH1F *smpx_h = new TH1F("smpx_h", " smpx_h; px_{#mu} (GeV); Number of events", 100, 0, 10);
@@ -366,55 +320,10 @@ void Variable_histograms(string procnum, string runlist){
     analysis->Branch("lvl1_rbits", &lvl1_rbits, "lvl1_rbits/I");
     analysis->Branch("beamclk", &beamclk, "beamclk/I");
    
-analysis->Branch("runnumber",      &runnumber,         "runnumber/I");
-analysis->Branch("fillnumber",     &fillnumber,        "fillnumber/I");
-analysis->Branch("qa_level",       &default_qa,        "qa_level/I");
-analysis->Branch("xingshift",      &xingshift,         "xingshift/I");
-analysis->Branch("badrun_flag",    &badrun_flag,       "badrun_flag/I");
-analysis->Branch("polblue",        &b_pol,             "polblue/F");
-analysis->Branch("polblue_stat",   &b_stat,            "polblue_stat/F");
-analysis->Branch("polblue_sys",    &b_syst,            "polblue_sys/F");
-analysis->Branch("polyellow",      &y_pol,             "polyellow/F");
-analysis->Branch("polyellow_stat", &y_stat,            "polyellow_stat/F");
-analysis->Branch("polyellow_sys",  &y_syst,            "polyellow_sys/F");
-analysis->Branch("patternblue",    patternblue,        "patternblue[120]/I");
-analysis->Branch("patternyellow",  patternyell,        "patternyellow[120]/I");
-analysis->Branch("badbunch_qa",    badbunch_qa,        "badbunch_qa[120]/I");
-analysis->Branch("scalerA",        scaler_bbcvtxcut,   "scalerA[120]/L");
-analysis->Branch("scalerB",        scaler_bbcnovtx,    "scalerB[120]/L");
-analysis->Branch("scalerC",        scaler_zdcwide,     "scalerC[120]/L");
-analysis->Branch("scalerD",        scaler_zdcnarrow,   "scalerD[120]/L");
-analysis->Branch("pattern",        &pattern_number,    "pattern/I");
-analysis->Branch("group",          &group,             "group/I");
 
 
-//forward vertex information 
-/*analysis->Branch("smx0fvtxmutr",&smx0fvtxmutr,"smx0fvtxmutr/F");
-analysis->Branch("smy0fvtxmutr",&smy0fvtxmutr,"smy0fvtxmutr/F");
-analysis->Branch("smz0fvtxmutr",&smz0fvtxmutr,"smz0fvtxmutr/F");
-analysis->Branch("smpxfvtxmutr",&smpxfvtxmutr,"smpxfvtxmutr/F");
-analysis->Branch("smpyfvtxmutr",&smpyfvtxmutr,"smpyfvtxmutr/F");
-analysis->Branch("smpzfvtxmutr",&smpzfvtxmutr,"smpzfvtxmutr/F");
-analysis->Branch("smdcaphi",&smdcaphi,"smdcaphi/F");
-analysis->Branch("smdrfvtx",&smdrfvtx,"smdrfvtx/F");
-analysis->Branch("smchi2fvtx",&smchi2fvtx,"smchi2fvtx/F");
-analysis->Branch("smdthetafvtx",&smdthetafvtx,"smdthetafvtx/F");
-analysis->Branch("smdphifvtx",&smdphifvtx,"smdphifvtx/F");
-analysis->Branch("smclusterssize",&smclusterssize,"smclusterssize/I");
-analysis->Branch("smfvtxtrackid",&smclusterssize,"smfvtxtrackid/I");
-analysis->Branch("smx0fvtx",&smx0fvtx,"smx0fvtx/F");
-analysis->Branch("smy0fvtx",&smy0fvtx,"smy0fvtx/F");
-analysis->Branch("smz0fvtx",&smz0fvtx,"smz0fvtx/F");
-analysis->Branch("smpxfvtx",&smpxfvtx,"smpxfvtx/F");
-analysis->Branch("smpyfvtx",&smpyfvtx,"smpyfvtx/F");
-analysis->Branch("smpzfvtx",&smpzfvtx,"smpzfvtx/F");
-*/
-//analysis->Branch("smxfvtxproj",&smxfvtxproj,"smxfvtxproj/F");
-//analysis->Branch("smyfvtxproj",&smyfvtxproj,"smyfvtxproj/F");
-//analysis->Branch("smxmutproj",&smxmutproj,"smxmutproj/F");
-//analysis->Branch("smymutproj",&smymutproj,"smymutproj/F");
-//analysis->Branch("smpxfvtxproj",&smpxfvtxproj,"smpxfvtxproj/F");
-//analysis->Branch("smpyfvtxproj",&smpyfvtxproj,"smpyfvtxproj/F");
+
+
 
 
 
@@ -564,8 +473,8 @@ analysis->Branch("smpzfvtx",&smpzfvtx,"smpzfvtx/F");
     lvl1_triglive = int(l_lvl1_triglive->GetValue());
     lvl1_trigscaled = int(l_lvl1_trigscaled->GetValue());
     lvl1_clock_cross = int(l_lvl1_clock_cross->GetValue());
-    lvl1_rbits = int(l_lvl1_rbits->GetValue());
-    beamclk = int(l_beamclk->GetValue());
+    for(unsigned j=0; j< 5; ++j) {lvl1_rbits = int(l_lvl1_rbits->GetValue(j));}
+    for(unsigned j=0; j< 2; ++j){beamclk = int(l_beamclk->GetValue(j));}
 
 
 
@@ -573,86 +482,17 @@ analysis->Branch("smpzfvtx",&smpzfvtx,"smpzfvtx/F");
 
 
     }// Event loop
+
+
+//analysis->Print();
+
+
+
+     analysis->Write();
+     f->Close();
     
-
-
-/*bbcvertexcut->ScalerA, bbcwithoutcut->ScalerB, zdcnarrow->ScalerC, zdcwide-> ScalerD
-https://www.phenix.bnl.gov/WWW/offline/wikioff/index.php/GL1P_Information
-*/
-
-
-
-ifstream ifstr(runlist.c_str());
-int run;
-while( ifstr >> run )
-{
-   InitTreeVars();
-   
-   v_ptb.clear();
-   v_pty.clear();
-   
-   int qa_level  = spin_out.GetDefaultQA(run);
-   spin_out.StoreDBContent(run, run);
-   int dbout = spin_out.GetDBContentStore(spin_cont, run);
-   if(dbout != 1) continue;
-   
-   default_qa = qa_level;
-   runnumber  = spin_cont.GetRunNumber();
-   fillnumber = spin_cont.GetFillNumber();
-   xingshift  = spin_cont.GetCrossingShift();
-   badrun_flag = spin_cont.GetBadRunFlag();
-   
-   spin_cont.GetPolarizationBlue(1, b_pol, b_stat, b_syst);
-   spin_cont.GetPolarizationYellow(1, y_pol, y_stat, y_syst);
-   
-
-   for(int ibunch=0; ibunch<NB; ibunch++)
-      {
-      patternblue[ibunch] = spin_cont.GetSpinPatternBlue(ibunch);
-      patternyell[ibunch] = spin_cont.GetSpinPatternYellow(ibunch);
-      badbunch_qa[ibunch] = spin_cont.GetBadBunchFlag(ibunch);
-      
-      scaler_bbcvtxcut[ibunch] = spin_cont.GetScalerBbcVertexCut(ibunch);
-      scaler_bbcnovtx[ibunch]  = spin_cont.GetScalerBbcNoCut(ibunch);
-      scaler_zdcwide[ibunch]   = spin_cont.GetScalerZdcWide(ibunch);
-      scaler_zdcnarrow[ibunch] = spin_cont.GetScalerZdcNarrow(ibunch);
-      
-         
-      if(ibunch < 16)
-         {
-         v_ptb.push_back(patternblue[ibunch]);
-         v_pty.push_back(patternyell[ibunch]);
-         }
-      }
-   
-   pattern_number = FindPattern(v_ptb, v_pty);
-   group = FindGroup(pattern_number);
-   
-   analysis->Fill();
-   
-   if(verb)
-      {
-      cout << endl;
-      cout << "Run: " << runnumber << "\n"
-      << "QA level: " << qa_level << "\n"
-      << "Fillnumber: " << fillnumber << "\n"
-      << "Polarization: " << b_pol << " (blue) " << y_pol << " (yellow) \n"
-      << "crossing shift: " << xingshift << endl;
-      
-      cout << "Spin pattern blue: ";
-      for(int i=0; i<NB; i++) cout << patternblue[i] << " ";
-      cout << endl;
-      cout << "Spin pattern yellow: ";
-      for(int i=0; i<NB; i++) cout << patternblue[i] << " ";
-      cout << endl;
-      }
 }
 
-
-
-     analysis->Print();
-     f->Write();
-}
 /*
      TCanvas *pl1 = new TCanvas("pl1", "pl1", 1000, 800);
      pl1->Divide(5,3);
@@ -714,125 +554,4 @@ while( ifstr >> run )
 */
 
 
-}
-
-int FindGroup(int pattern)
-{
-   
-   
-   if( pattern == 1 || pattern == 4 || pattern == 5 || pattern == 8 )
-      return 0;
-   else if( pattern == 2 || pattern == 3 || pattern == 6 || pattern == 7 )
-      return 1;
-   else if( pattern == 21 || pattern == 24 || pattern == 25 || pattern == 28 )
-      return 2;
-   else if( pattern == 22 || pattern == 23 || pattern == 26 || pattern == 27 )
-      return 3;
-   else
-      return -1;
-}
-
-void DefineBasePatterns()
-{
-   
-   base1.clear();
-   base2.clear();
-   base3.clear();
-   base4.clear();
-   base1a.clear();
-   base2a.clear();
-   base3a.clear();
-   base4a.clear();
-   
-   int arr_base1[16] = {1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1};
-   int arr_base2[16] = {-1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1};
-   int arr_base3[16] = {1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, 1, -1, -1, 1, 1};
-   int arr_base4[16] = {-1, -1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, -1, -1};
-   int arr_base1a[16] = {1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1};
-   int arr_base2a[16] = {-1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1};
-   int arr_base3a[16] = {-1, -1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, 1, -1, -1};
-   int arr_base4a[16] = {1, 1, -1, -1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1};
-   
-   for(int i=0; i<16; i++)
-      {
-      base1.push_back(arr_base1[i]);
-      base2.push_back(arr_base2[i]);
-      base3.push_back(arr_base3[i]);
-      base4.push_back(arr_base4[i]);
-      base1a.push_back(arr_base1a[i]);
-      base2a.push_back(arr_base2a[i]);
-      base3a.push_back(arr_base3a[i]);
-      base4a.push_back(arr_base4a[i]);
-      }
-   
-}
-
-int FindPattern(vector<int> &ptb, vector<int> &pty)
-{
-   
-   
-   if( ptb == base1 && pty == base3 )
-      return 1;
-   else if( ptb == base2 && pty == base3 )
-      return 2;
-   else if( ptb == base1 && pty == base4 )
-      return 3;
-   else if( ptb == base2 && pty == base4 )
-      return 4;
-   else if( ptb == base3 && pty == base1 )
-      return 5;
-   else if( ptb == base3 && pty == base2 )
-      return 6;
-   else if( ptb == base4 && pty == base1 )
-      return 7;
-   else if( ptb == base4 && pty == base2 )
-      return 8;
-   else if( ptb == base1a && pty == base3a )
-      return 21;
-   else if( ptb == base2a && pty == base3a )
-      return 22;
-   else if( ptb == base1a && pty == base4a )
-      return 23;
-   else if( ptb == base2a && pty == base4a )
-      return 24;
-   else if( ptb == base3a && pty == base1a )
-      return 25;
-   else if( ptb == base3a && pty == base2a )
-      return 26;
-   else if( ptb == base4a && pty == base1a )
-      return 27;
-   else if( ptb == base4a && pty == base2a )
-      return 28;
-   else
-      return -1; 
-   
-}
-
-
-
-void InitTreeVars()
-{
-
-  default_qa = -999;
-  runnumber = -999;
-  fillnumber = -999;
-  xingshift = -999;
-  badrun_flag = -999;
-  b_pol = -999;
-  y_pol = -999;
-  b_stat = -999;
-  y_stat= -999;
-  b_syst = -999;
-  y_syst = -999;
-
-  for(int i=0; i<NB; i++)
-    {
-      patternblue[i] = -999;
-      patternyell[i] = -999;
-      badbunch_qa[i] = -999;
-      scaler_bbcvtxcut[i] = -999;
-      scaler_bbcnovtx[i] = -999;
-      scaler_zdcwide[i] = -999;
-      scaler_zdcnarrow[i] = -999;
-    }
 }
