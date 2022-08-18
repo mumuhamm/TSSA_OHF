@@ -1,5 +1,8 @@
 /*
-  NOTE:
+Author : Sanghwa Park 
+User : Muhammad Alibordi  
+
+NOTE:
   This simple example macro shows how to read contents 
   from spinDB and store them into a rootfile
   
