@@ -31,12 +31,12 @@ using  namespace std;
 using namespace RooFit;
 
 void polarization(){
-   gStyle->SetOptStat(0);
+   
    TProfile *fillvspol_b = new TProfile("fillvspol_b","fillvspol;fill;polarization",100,18650,19000,-1, 1 );
    TProfile *fillvspol_y = new TProfile("fillvspol_y","fillvspol;fill;polarization",100,18650,19000,-1, 1 );
    TProfile *runvspol_b = new TProfile("runvspol_b","runvspol;run;polarization",100,4.21E5,4.34E5,-1, 1 );
    TProfile *runvspol_y = new TProfile("runvspol_y","runvspol;run;polarization",100,4.21E5,4.34E5,-1, 1 );
-   TProfile *bunchvsscaler = new TProfile("bunchvsscaler","bunchvsscaler;bunch;scaler",100,0,120, 0, 4E9 );
+   TProfile *bunchvsscaler = new TProfile("bunchvsscaler","bunchvsscaler;bunch;scaler",120,0,120, 0, 4E9 );
    
    
    int run, fill, bunch;
@@ -61,16 +61,18 @@ void polarization(){
       fillvspol_y->Fill(fill, polyellow,1);
       runvspol_y->Fill(run, polyellow,1);
       runvspol_b->Fill(run, polblue,1);
-      for(unsigned k =0 ; k<120; ++k){
+      for(unsigned k =0 ; k<=120; ++k){
          bunch = k;
          Long64_t scaler_bbcvtxcut = scalerA[k];
-         std::cout<<" scaler value   :" <<scaler_bbcvtxcut<<"\n";
+         std::cout<<" scaler value   :"<<k<<"that was the value of bunch    : "<<scaler_bbcvtxcut<<"\n";
          bunchvsscaler->Fill(k, scaler_bbcvtxcut,1);
       }
       
       
       
    }
+   gStyle->SetOptStat(0);
+   
    TCanvas *c = new TCanvas();
    fillvspol_b->SetLineColor(kBlue);
    fillvspol_b->SetMarkerColor(kBlue);
@@ -102,12 +104,20 @@ void polarization(){
    legenda->AddEntry(runvspol_y,"Yellow","l");
    legenda->Draw();
    
-   TCanvas *c2 = new TCanvas();
+   TCanvas *c2 = new TCanvas("c2","c2", 1400, 400);
    bunchvsscaler->SetLineColor(kBlue);
+   bunchvsscaler->SetFillColor(kOrange+2);
+   bunchvsscaler->SetBarWidth(0.4);
+   bunchvsscaler->SetBarOffset(0.1);
+   bunchvsscaler->SetFillStyle(3005);
    bunchvsscaler->DrawNormalized();
-   auto legendb = new TLegend(0.6,0.6,0.8,0.8);
-   legendb->SetHeader("bunch vs scaler","L");
+   auto legendb = new TLegend(0.7,0.75,0.87,0.95);
+   legendb->SetHeader("scaler=f(bunch)","L");
    legendb->AddEntry(bunchvsscaler,"scaler","l");
    legendb->Draw();
    
 }
+
+
+
+
