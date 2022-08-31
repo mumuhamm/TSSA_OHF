@@ -114,7 +114,7 @@ void analyzer(string filename){
    TH1F *xF_n_h = new TH1F("xF_n_h","xF; North x_{F},  p_{z} > 0 ; Number of events", 100,0.0, 0.2);
    TH2F *_h2d = new TH2F("_h2d", "_h2d; x( cm); y (cm)", 100, -450, 450, 100, -450, 450);
    TH1F *_h = new TH1F("_h", "_h", 50, 0, 7);
-   
+   TH1F *mupt_h = new TH1F("mupt_h", "mupt_h; p_{T} (GeV); Number of events", 50, 0, 10);//pt_bins
    
    TFile *mufile = new TFile((filename).c_str());
    TTree *mutree = (TTree*)mufile->Get("analysis");
@@ -126,7 +126,7 @@ void analyzer(string filename){
    float  costheta_vtx, theta_vtx, costheta_mutr, theta_mutr, delta_theta, scaled_dtheta;
    float r_ref, chi2_trk_vtx,  sq_norm_z;
    float px_sta1, py_sta1, pz_sta1, x_sta3, y_sta3, pz_max;
-   int trhits, idhits, muonmultiplicity, clock;
+   int trhits, idhits, eventYield, clock, runnumber;
    float ctheta, pdtheta, dangle;
    bool muoncharge;
    float pz_array[n_entries];
@@ -161,13 +161,13 @@ void analyzer(string filename){
    mutree->SetBranchAddress("smidx",&idx);
    mutree->SetBranchAddress("smidy",&idy);
    mutree->SetBranchAddress("smcharge",&muoncharge);
-   mutree->SetBranchAddress("nmuons",&muonmultiplicity);
+   mutree->SetBranchAddress("eventnumber",&eventYield);
    mutree->SetBranchAddress("lvl1_clock_cross",&clock);
    mutree->SetBranchAddress("smst1px",&px_sta1);
    mutree->SetBranchAddress("smst1py",&py_sta1);
    mutree->SetBranchAddress("smst1pz",&pz_sta1);
    mutree->SetBranchAddress("smxst3",&x_sta3);
-   mutree->SetBranchAddress("smyst3",&y_sta3);
+   mutree->SetBranchAddress("runnumber",&runnumber);
    
       //================================================================== output tree
    float pz_var =0, rapidity_var=0, pt_var=0, phi_var=0, ddg0_var=0, dg0_var=0, pdtheta_var=0, idchi2_var=0, trchi2_var=0, x_F_var=0;
@@ -241,6 +241,7 @@ void analyzer(string filename){
       if (ientry%10000==0) cout << "processing event " << ientry << "/" << n_entries <<"\n";
       
 #if 1
+      //std::cout<<" run number " << runnumber<<"\n";
       pz_array[ientry] = pz;
       if (pz_array[ientry] > pz_max){pz_max = pz_array[ientry];}
      // std::cout<<"pz value : "<< pz <<"\t"<<"pz max  :"<<pz_max<< "\t the value of xF  : "<< pz/pz_max<<" \n";
@@ -253,7 +254,11 @@ void analyzer(string filename){
       _h2d->Fill(x_sta3, y_sta3);
       
       
-      pt = call.pT(px, py);
+      pt = sqrt(px*px+ py*py);//call.pT(px, py);
+     
+         
+         
+      
       energy = pz*TMath::TanH(rapidity);
       mu_4vec->SetPxPyPzE(px, py, pz, energy);
       three_mom.SetXYZ(px, py, pz);
@@ -305,7 +310,8 @@ void analyzer(string filename){
        if(py > 0){Spin_Up =1;}
        if(py < 0){Spin_Down =1;}
       
-     
+      
+      
       
       
       
@@ -329,12 +335,12 @@ void analyzer(string filename){
       
       
       
-      
       if( trhits > 12 && trchi2 < 10 && idhits > 6 && idchi2 < 5
          && ddg0 < 8 && dg0 < 20 && (fabs(rapidity)>1.2 || fabs(rapidity)< 2.0)
          && (pt > 1.25 || pt < 5.0) && pdtheta < 0.2){
          
          pT_cut_val = pt;
+         mupt_h->Fill(pT_cut_val);
          phi_trk = vec_trk.Phi();
          
       }
@@ -403,7 +409,7 @@ void analyzer(string filename){
    gStyle->SetOptStat(0);
    gStyle->SetOptTitle(0);
   
-   
+   /*
    call.plot_PT(mupt_h_s_mp, mupt_h_s_mn, mupt_h_n_mp, mupt_h_n_mn, "pTDistribution");
    
    call.plot_south_right(delta_theta_h_s_mp, delta_theta_h_s_mn, "delta_theta_south");
@@ -429,7 +435,7 @@ void analyzer(string filename){
    
    
   
-   
+   */
    TCanvas* c= new TCanvas();
    _h2d->Draw("colz");
    TCanvas* c1= new TCanvas();
@@ -437,5 +443,8 @@ void analyzer(string filename){
    TCanvas* c2= new TCanvas();
    xF_n_h->Draw();
    
-  
+   TCanvas* c3= new TCanvas();
+   std::cout<< " number of the entries of the muon histogram"<< mupt_h->GetEntries()<<"\n";
+   mupt_h->Draw();
+   std::cout<<mupt_h->GetEntries()<<"\n";
 }
