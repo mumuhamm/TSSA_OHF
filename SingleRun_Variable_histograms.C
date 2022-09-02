@@ -34,7 +34,7 @@ decays process for the moment. Gathering the kinematics of TSSA analysis
 
 
 
-void Variable_histograms(string procnum, string runlist){
+void SingleRun_Variable_histograms(string filename, string output){
 
     TH1F *smddg0_h = new TH1F("smddg0_h", "smddg0_h;DDG0_{#mu}; Number of events (a.u.)", 100, 0, 25.0);
     TH1F *smpx_h = new TH1F("smpx_h", " smpx_h; px_{#mu} (GeV); Number of events", 100, 0, 10);
@@ -97,8 +97,8 @@ void Variable_histograms(string procnum, string runlist){
     		singMu = (TTree*)fn1->Get("T");
 }}*/
     //TFile * fn1 = new TFile(("../../data/"+procnum+".root").c_str());
-    for (unsigned i = 421815 ; i <= 432008; ++i){
-    TFile *fn1 = new TFile(Form("../../../data/%d.root", i));
+    
+    TFile *fn1 = new TFile(filename.c_str());
     if ((!fn1) || (fn1->IsZombie())) continue;
     TTree * singMu = (TTree*)fn1->Get("T");
     TLeaf* l_nsm; //index parameter
@@ -264,7 +264,7 @@ void Variable_histograms(string procnum, string runlist){
 
 
 
-    TFile *f = new TFile(Form("/direct/phenix+u/alibordi/hf_outputs/analysis_preliminary_%d.root",i),"recreate");
+    TFile *f = new TFile(("/direct/phenix+u/alibordi/hf_outputs/analysis_preliminary_"+output+".root").c_str(),"recreate");
     TTree *analysis = new TTree("analysis","selected ntcltestle");
     analysis->Branch("nmuons",&nmuons,"nmuons/I");
     analysis->Branch("smddg0",&smddg0,"smdd0/F");
@@ -510,7 +510,7 @@ void Variable_histograms(string procnum, string runlist){
      analysis->Write();
      f->Close();
     
-}
+
 
 /*
      TCanvas *pl1 = new TCanvas("pl1", "pl1", 1000, 800);

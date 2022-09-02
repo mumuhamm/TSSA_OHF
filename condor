@@ -1,0 +1,17 @@
+Universe        = vanilla
+Executable      = run.sh
+Arguments       = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/start_analysis/data/432268.root 
+Requirements    = CPU_Speed >= 1
+Rank		= CPU_Speed
+Image_Size      = 1.8GB
+Priority        = +20
+GetEnv          = True
+Initialdir      = /direct/phenix+u/alibordi/hf_outputs
+Input           = /dev/null
+Output          = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/condor_out/singlemuon.out
+Error           = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/condor_out/singlemuon.err
+Log             = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/condor_out/singlemuon.log
+Notify_user     = alibordi@rcf.rhic.bnl.gov
++Experiment     = "PHENIX"
++Job_Type       = "cas"
+Queue  
