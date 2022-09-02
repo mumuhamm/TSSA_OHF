@@ -344,7 +344,7 @@ void SingleRun_Variable_histograms(string filename, string output){
     std::cout<<"No of entries"<<nentries<<"\n";
     for (Int_t ientry=0; ientry<nentries; ientry++) {               
       singMu->GetEntry(ientry);
-      if (ientry%100==0) cout << "processing event " << ientry << "/" << nentries <<"\n";
+      if (ientry%10000==0) cout << "processing event " << ientry << "/" << nentries <<"\n";
        nmuons = int(l_nsm->GetValue());
       singleM = int(l_SingleMuons->GetValue());
       

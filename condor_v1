@@ -6,9 +6,9 @@ Priority        = +20
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 Initialdir      = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/start_analysis/TSSA_OHF
-Output          = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/condor_out/singlemuon.out
-Error           = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/condor_out/singlemuon.err
-Log             = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/condor_out/singlemuon.log
+Output          = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/condor_out/singlemuon_$(ClusterId)_$(ProcId).out
+Error           = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/condor_out/singlemuon_$(ClusterId)_$(ProcId).err
+Log             = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/condor_out/singlemuon_$(ClusterId).log
 +Experiment     = "PHENIX"
 +Job_Type       = "cas"
 Queue 5 
