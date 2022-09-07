@@ -76,15 +76,15 @@ void likelihood(){
    TCut c4 = "idhits_var > 6 && idchi2_var < 5";
    TCut c5 = "pdtheta_var < 0.2 && pz_var < 0";
    TCut c6 = "muoncharge_var == 0";
-   TCut ptbin_1 = "pt_var > 1.25 || pt_var < 1.50";
-   TCut ptbin_2 = "pt_var > 1.50 || pt_var < 2.00";
-   TCut ptbin_3 = "pt_var > 2.00 || pt_var < 2.50";
-   TCut ptbin_4 = "pt_var > 2.50 || pt_var < 3.00";
-   TCut ptbin_5 = "pt_var > 3.00 || pt_var < 3.50";
-   TCut ptbin_6 = "pt_var > 3.50 || pt_var < 5.00";
+   TCut ptbin_1 = "pt_var > 1.25 && pt_var < 1.50";
+   TCut ptbin_2 = "pt_var > 1.50 && pt_var < 2.00";
+   TCut ptbin_3 = "pt_var > 2.00 && pt_var < 2.50";
+   TCut ptbin_4 = "pt_var > 2.50 && pt_var < 3.00";
+   TCut ptbin_5 = "pt_var > 3.00 && pt_var < 3.50";
+   TCut ptbin_6 = "pt_var > 3.50 && pt_var < 5.00";
    
    
-   TCut signalRegion = c1 && c2 && c3 && c4 && c5 && c6 && ptbin_1 ;
+   TCut signalRegion = c1 && c2 && c3 && c4 && c5 && c6 && ptbin_5 ;
    
    
    RooDataSet *data_SigReg = (RooDataSet*)data.reduce(signalRegion);

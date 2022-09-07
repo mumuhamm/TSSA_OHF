@@ -46,7 +46,7 @@ void spin_info(string output){
    
    TFile *mufile_spin = new TFile("../spinDB_test.root");
    TTree *mutree_spin = (TTree*)mufile_spin->Get("T");
-   int n_entries = mutree_spin->GetEntries();
+   int n_entries_spin = mutree_spin->GetEntries();
    std::cout<<" Number of entries for the moment : \t"<< n_entries <<"\n";
    
    int run, fill, bunch;

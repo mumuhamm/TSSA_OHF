@@ -42,23 +42,36 @@ void Time_Resolution(){
    Int_t nentries = ltree->GetEntries();
    std::cout<<" Number of events in the tree "<< nentries<<"\n";
    ltree->Print();
+   Double_t amplitude_L03C_allpixel_for2D[24][24];
+   ltree->SetBranchAddress("amplitude_L03C_allpixel_for2D",&amplitude_L03C_allpixel_for2D[0][0]);
    TH1D * time_r[16];
-   Double_t time_diff, amp, x , y ;
+   Double_t time_diff, amp, x , y, cluster_x, cluster_y ;
    Double_t max_coor_cut,min_coor_cut;
    Double_t amplitude;
+   TH2F *hxvsy = new TH2F("hxvsy", "Cluster position x vs cluster position;Cluster position x ;Cluster position y", 24, -50.0,50,24, -50.0,50  );
+    auto h2 = new TH2D("h2", "", 24, 0.0, 24, 24, 0.0, 24);
    for (unsigned i =0; i<16; ++i){
       time_r[i]= new TH1D(Form("mhistogram_%d", i), Form("diffrence_time_[%d-(%d-1)-60]", i,i), 100, -500, 500  );
    }
    
    TLeaf* l_tt = (TLeaf*) ltree->GetLeaf("tt");
    TLeaf* l_aa = (TLeaf*) ltree->GetLeaf("aa");
-   TLeaf* l_tx = (TLeaf*) ltree->GetLeaf("tx");
-   TLeaf* l_ty = (TLeaf*) ltree->GetLeaf("ty");
+   TLeaf* l_tx = (TLeaf*) ltree->GetLeaf("trk_tx");
+   TLeaf* l_ty = (TLeaf*) ltree->GetLeaf("trk_ty");
+   TLeaf* l_cluster_L03C_X = (TLeaf*) ltree->GetLeaf("cluster_L03C_X");
+   TLeaf* l_cluster_L03C_Y = (TLeaf*) ltree->GetLeaf("cluster_L03C_Y");
+   TLeaf* l_amplitude_L03C_allpixel_for2D = (TLeaf*) ltree->GetLeaf("amplitude_L03C_allpixel_for2D");
+   
+   amplitude_L03C_allpixel_for2D
   
    for(int i = 0; i < ltree->GetEntries(); i++){
       ltree->GetEntry(i);
       x = l_tx->GetValue();
       y = l_ty->GetValue();
+      cluster_x = l_cluster_L03C_X->GetValue();
+      cluster_y = l_cluster_L03C_Y->GetValue();
+      hxvsy->Fill(cluster_x, cluster_y);
+      
       max_coor_cut = x + y + 12;
       min_coor_cut = x - y + 12;
       if(abs(max_coor_cut) > 5.0) continue;
@@ -73,6 +86,13 @@ void Time_Resolution(){
          time_r[j]->Fill(time_diff);
          
          
+      }
+      
+      for(unsigned k =0; k<24; ++k){
+         for(unsigned l =0 ; l<24; ++l){
+            Double_t amp = amplitude_L03C_allpixel_for2D[k][l];
+            h2->SetBinContent(k, l, amp);
+         }
       }
       
      }//event loop
@@ -109,7 +129,7 @@ void Time_Resolution(){
       c1->SaveAs(Form("/Users/md/Documents/Phenix_HF_Analysis/lappd_event/time/time-diff_%d.png",j));
    }
   
-   
+   TCanvas *c8 = new TCanvas();h2->Draw("COLZ"); c8->SaveAs("/Users/md/Documents/Phenix_HF_Analysis/lappd_event/time/xvsy.pdf", "pdf");
    
    
 
