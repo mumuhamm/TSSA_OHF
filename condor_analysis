@@ -1,0 +1,15 @@
+Universe        = vanilla
+Executable      = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/start_analysis/TSSA_OHF/run_ON_analysis.csh
+Arguments       = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/muon_output/analysis_preliminary_45_422255.root 422255 
+Priority        = +20
+request_memory  = 1.8GB
+request_cpus    = 2
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+Initialdir      = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/start_analysis/TSSA_OHF
+Output          = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/condor_out_analysis/singlemuon.out
+Error           = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/condor_out_analysis/singlemuon.err
+Log             = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/condor_out_analysis/singlemuon.log
++Experiment     = "PHENIX"
++Job_Type       = "cas"
+Queue 4

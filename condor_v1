@@ -1,14 +1,13 @@
 Universe        = vanilla
-Executable      = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/start_analysis/TSSA_OHF/run_ON_file.csh
-Arguments       = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/sanghwa/taxi/Run15pp200CAMUP108/18416/data/421815.root 
-GetEnv          = True
+Executable      = run_ON_file.csh
+Arguments       = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/sanghwa/taxi/Run15pp200CAMUP108/18416/data/421815.root  421815
 Priority        = +20
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 Initialdir      = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/start_analysis/TSSA_OHF
 Output          = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/condor_out/singlemuon_$(ClusterId)_$(ProcId).out
 Error           = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/condor_out/singlemuon_$(ClusterId)_$(ProcId).err
-Log             = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/condor_out/singlemuon_$(ClusterId).log
+Log             = /gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/condor_out/singlemuon_$(ClusterId)_$(ProcId).log
 +Experiment     = "PHENIX"
 +Job_Type       = "cas"
 Queue 5 

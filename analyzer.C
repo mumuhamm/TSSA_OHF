@@ -30,7 +30,7 @@
 #include "TRandom.h"
 #include "TLorentzVector.h"
 #include "TVector3.h"
-#include "analyzer.h"
+//#include "analyzer.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
@@ -42,15 +42,17 @@ using  namespace std;
 #define MAX_VALUE_UNSIGNED(a) (((unsigned long long)1 << (sizeof(a) * CHAR_BIT)) - 1)
 #define MAX_VALUE_SIGNED(a) (MAX_VALUE_UNSIGNED(a) >> 1)
 #define MAX_VALUE(a) (IS_TYPE_SIGNED(a) ? MAX_VALUE_SIGNED(a) : MAX_VALUE_UNSIGNED(a))
+#define large_val = 100000000
 
-void analyzer(string cadidatefile, string spinfile){
+
+void analyzer(string cadidatefile, string output){
    
-   definition call;
+   //definition call;
    
    
    std::cout<<"======================================spin tree output======================"<<"\n";
    
-   TFile *mufile_spin = new TFile((spinfile).c_str());
+   TFile *mufile_spin = new TFile("/gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/start_analysis/spinDB_singMuon.root");
    TTree *mutree_spin = (TTree*)mufile_spin->Get("T");
    int n_entries_spin = mutree_spin->GetEntries();
    std::cout<<" Number of entries for the moment : \t"<< n_entries_spin <<"\n";
@@ -98,8 +100,9 @@ void analyzer(string cadidatefile, string spinfile){
    float ctheta, pdtheta, dangle;
    bool muoncharge;
    int clock_candidate;
-   float pz_array[n_entries_cadidate];
-   pz_max = pz_array[n_entries_cadidate];
+   static const Int_t n = 100000000;
+   float pz_array[n];
+   pz_max = pz_array[n];
    float ipx =0.0, ipy=0.0; //coordinate of IP cosidered as 0,0 , centre of mass frame
    TVector3 vec_trk;
    TVector3 vec_vtx;
@@ -145,6 +148,7 @@ void analyzer(string cadidatefile, string spinfile){
    int muoncharge_var, trhits_var, idhits_var, lastgap_var, run_candidate_var, run_spin_var;
    int bluebeam_spin_pattern, yellowbeam_spin_pattern;
    float bluebeam_pol_var, yellowbeam_pol_var;
+   float px_var =0; 
    
    bool pt_bin1 = false;
    bool pt_bin2 = false;
@@ -163,9 +167,10 @@ void analyzer(string cadidatefile, string spinfile){
    float ptSpinDown_NorthArm_bin1, ptSpinDown_NorthArm_bin2, ptSpinDown_NorthArm_bin3, ptSpinDown_NorthArm_bin4, ptSpinDown_NorthArm_bin5, ptSpinDown_NorthArm_bin6;
    
    
-   TFile *f = new TFile(("../fit_"+output+".root").c_str(),"recreate");
+   TFile *f = new TFile(("/gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/analysis_tree_out/fit_"+output+".root").c_str(),"recreate");
    TTree *fit = new TTree("fit","selected ntcltestle");
    fit->Branch("pz_var",&pz_var,"pz_var/F");
+   fit->Branch("px_var",&px_var, "px_var/F");
    fit->Branch("rapidity_var",&rapidity_var,"rapidity_var/F");
    fit->Branch("pt_var",&pt_var,"pt_var/F");
    fit->Branch("phi_var",&phi_var,"phi_var/F");
@@ -209,7 +214,7 @@ void analyzer(string cadidatefile, string spinfile){
 #endif
       
       _h2d->Fill(x_sta3, y_sta3);
-      pt = call.pT(px, py);
+      pt = sqrt(px*px+py*py);//all.pT(px, py);
       
       
       energy = pz*TMath::TanH(rapidity);
@@ -231,7 +236,7 @@ void analyzer(string cadidatefile, string spinfile){
       }
       pdtheta = dangle*0.5*(p+pSTI);
       
-      vec_proj = call.vectorProjection(vec_trk,vec_vtx_z );
+      vec_proj =  (vec_trk.Dot(vec_vtx_z)/vec_vtx_z.Mag2())*vec_vtx_z;//  call.vectorProjection(vec_trk,vec_vtx_z );
       sq_norm_z = vec_proj.Mag2();
       if(!(sq_norm_z !=sq_norm_z)){ chi2_trk_vtx = sq_norm_z;}
       if (idx != -8888 && idy != -8888    ){
@@ -249,6 +254,7 @@ void analyzer(string cadidatefile, string spinfile){
       north_cut = ( trhits > 12 && trchi2 < 10 && idhits > 6 && idchi2 < 5 && ddg0 < 8 && dg0 < 10 && (fabs(rapidity)>1.2 || fabs(rapidity)< 2.0) && pdtheta < 0.2);
       
       pz_var = pz;
+      px_var = px;
       pt_var = pt;
       ddg0_var = ddg0;
       dg0_var = dg0;

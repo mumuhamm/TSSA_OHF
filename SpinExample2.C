@@ -62,14 +62,14 @@ void DefineBasePatterns();
 
 int verb = 0;
 
-void SpinExample2(string runlist, string runnumber)
+void SpinExample2(string runlist)
 {
 
   DefineBasePatterns();
 
   gSystem->Load("libuspin.so");
 
-  TFile* fout = new TFile(("/direct/phenix+u/alibordi/copy_datacode/spinDB_test_"+runnumber+".root").c_str(), "RECREATE");
+  TFile* fout = new TFile("../spinDB_singMuon.root", "RECREATE");
   TTree* T = new TTree("T", "T");
   SetOutTree(T);
 

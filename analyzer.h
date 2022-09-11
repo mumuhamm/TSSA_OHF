@@ -30,9 +30,9 @@
 #include "TRandom.h"
 #include "TLorentzVector.h"
 #include "TVector3.h"
-
+#include "TStyle.h"
 using  namespace std;
-using namespace RooFit;
+//using namespace RooFit;
 
 class definition
 {
@@ -65,11 +65,14 @@ public:
       }
       return Theta;
    }
-   TVector3 vectorProjection(TVector3 vec_A, TVector3 vec_B){
+
+   TVector3 vectorProjection(TVector3 vec_A, TVector3 vec_B){	
       TVector3 projection;
       projection = (vec_A.Dot(vec_B)/vec_B.Mag2())*vec_B;
       return projection;
    }
+
+
    void plot(TH1F * hist1 , TH1F * hist2, string histname){
       TCanvas *c = new TCanvas();
       hist1->SetLineColor(kRed);
@@ -78,12 +81,14 @@ public:
       hist2->SetLineColor(kBlack);
       hist2->SetMarkerStyle(8);
       hist2->Draw("SAME");
-      auto legend = new TLegend(0.1,0.7,0.48,0.9);
+      TLegend* legend = new TLegend(0.1,0.7,0.48,0.9);
       legend->AddEntry(hist1,"South","l");
       legend->AddEntry(hist2,"North","l");
       legend->Draw();
       c->SaveAs(("plot/"+histname+".pdf").c_str());
    }
+
+
    
    void plot_north(TH1F * hist1 , TH1F * hist2, string histname){
       TCanvas *c = new TCanvas();
@@ -93,7 +98,7 @@ public:
       hist2->SetLineColor(kBlack);
       hist2->SetMarkerStyle(8);
       hist2->Draw("SAME");
-      auto legend = new TLegend(0.15,0.6,0.35,0.8);
+      TLegend* legend = new TLegend(0.15,0.6,0.35,0.8);
       legend->SetHeader("North","L");
       legend->AddEntry(hist1,"#mu^{+}","l");
       legend->AddEntry(hist2,"#mu^{-}","l");
@@ -108,7 +113,7 @@ public:
       hist2->SetLineColor(kBlack);
       hist2->SetMarkerStyle(8);
       hist2->Draw("SAME");
-      auto legend = new TLegend(0.6,0.55,0.8,0.85);
+      TLegend* legend = new TLegend(0.6,0.55,0.8,0.85);
       legend->SetHeader("North","L");
       legend->AddEntry(hist1,"#mu^{+}","l");
       legend->AddEntry(hist2,"#mu^{-}","l");
@@ -123,7 +128,7 @@ public:
       hist2->SetLineColor(kBlack);
       hist2->SetMarkerStyle(8);
       hist2->Draw("SAME");
-      auto legend = new TLegend(0.15,0.6,0.35,0.8);
+      TLegend* legend = new TLegend(0.15,0.6,0.35,0.8);
       legend->SetHeader("South","L");
       legend->AddEntry(hist1,"#mu^{+}","l");
       legend->AddEntry(hist2,"#mu^{-}","l");
@@ -138,7 +143,7 @@ public:
       hist2->SetLineColor(kBlack);
       hist2->SetMarkerStyle(8);
       hist2->Draw("SAME");
-      auto legend = new TLegend(0.6,0.55,0.8,0.85);
+      TLegend* legend = new TLegend(0.6,0.55,0.8,0.85);
       legend->SetHeader("South","L");
       legend->AddEntry(hist1,"#mu^{+}","l");
       legend->AddEntry(hist2,"#mu^{-}","l");
@@ -160,7 +165,7 @@ public:
       hist4->SetLineColor(kGreen+2);
       hist4->SetMarkerStyle(8);
       hist4->Draw("SAME");
-      auto legend = new TLegend(0.6,0.55,0.8,0.85);
+      TLegend* legend = new TLegend(0.6,0.55,0.8,0.85);
       legend->SetHeader("All","C");
       legend->AddEntry(hist1,"South #mu^{+}","l");
       legend->AddEntry(hist2,"South #mu^{-}","l");
@@ -178,7 +183,7 @@ public:
       hist2->SetLineColor(kBlack);
       hist2->SetMarkerStyle(8);
       hist2->Draw("SAME");
-      auto legend = new TLegend(0.6,0.6,0.8,0.8);
+      TLegend* legend = new TLegend(0.6,0.6,0.8,0.8);
       legend->SetHeader("South","L");
       legend->AddEntry(hist1,"#mu^{+}","l");
       legend->AddEntry(hist2,"#mu^{-}","l");
@@ -194,7 +199,7 @@ public:
       hist2->SetLineColor(kBlack);
       hist2->SetMarkerStyle(8);
       hist2->Draw("SAME");
-      auto legend = new TLegend(0.6,0.6,0.8,0.8);
+      TLegend* legend = new TLegend(0.6,0.6,0.8,0.8);
       legend->SetHeader("North","L");
       legend->AddEntry(hist1,"#mu^{+}","l");
       legend->AddEntry(hist2,"#mu^{-}","l");

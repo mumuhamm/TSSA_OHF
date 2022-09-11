@@ -264,7 +264,7 @@ void SingleRun_Variable_histograms(string filename, string output){
 
 
 
-    TFile *f = new TFile(("/direct/phenix+u/alibordi/hf_outputs/analysis_preliminary_"+output+".root").c_str(),"recreate");
+    TFile *f = new TFile(("/gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/muon_output/analysis_preliminary_"+output+".root").c_str(),"recreate");
     TTree *analysis = new TTree("analysis","selected ntcltestle");
     analysis->Branch("nmuons",&nmuons,"nmuons/I");
     analysis->Branch("smddg0",&smddg0,"smdd0/F");
@@ -344,7 +344,7 @@ void SingleRun_Variable_histograms(string filename, string output){
     std::cout<<"No of entries"<<nentries<<"\n";
     for (Int_t ientry=0; ientry<nentries; ientry++) {               
       singMu->GetEntry(ientry);
-      if (ientry%10000==0) cout << "processing event " << ientry << "/" << nentries <<"\n";
+      if (ientry%100==0) cout << "processing event " << ientry << "/" << nentries <<"\n";
        nmuons = int(l_nsm->GetValue());
       singleM = int(l_SingleMuons->GetValue());
       
