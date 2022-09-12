@@ -148,7 +148,7 @@ void analyzer(string cadidatefile, string output){
    int muoncharge_var, trhits_var, idhits_var, lastgap_var, run_candidate_var, run_spin_var;
    int bluebeam_spin_pattern, yellowbeam_spin_pattern;
    float bluebeam_pol_var, yellowbeam_pol_var;
-   float px_var =0; 
+   float px_var =0, r_ref_var =0, E_var = 0; 
    
    bool pt_bin1 = false;
    bool pt_bin2 = false;
@@ -198,6 +198,8 @@ void analyzer(string cadidatefile, string output){
    fit->Branch("yellowbeam_pol_var",&yellowbeam_pol_var,"yellowbeam_pol_var/F");
    fit->Branch("run_candidate_var",&run_candidate_var,"run_candidate_var/I");
    fit->Branch("run_spin_var",&run_spin_var,"run_spin_var/I");
+   fit->Branch("E_var", &E_var, "E_var/F");
+   fit->Branch("r_ref_var", &r_ref_var, "r_ref_var/F");
    
   
    
@@ -218,6 +220,7 @@ void analyzer(string cadidatefile, string output){
       
       
       energy = pz*TMath::TanH(rapidity);
+      E_var = energy;
       mu_4vec->SetPxPyPzE(px, py, pz, energy);
       three_mom.SetXYZ(px, py, pz);
       vec_trk.SetXYZ(x0,y0,z0);
@@ -241,7 +244,8 @@ void analyzer(string cadidatefile, string output){
       if(!(sq_norm_z !=sq_norm_z)){ chi2_trk_vtx = sq_norm_z;}
       if (idx != -8888 && idy != -8888    ){
          r_ref = sqrt ((ipx-idx)*(ipx-idx) + (ipy-idy)*(ipy-idy));
-      }
+         r_ref_var = r_ref;
+}
       
       
       pt_bin1 = (pt > 1.25 && pt < 1.50);
@@ -274,8 +278,8 @@ void analyzer(string cadidatefile, string output){
       for (int jentry = 0; jentry<=n_entries_spin; ++jentry){
          
          mutree_spin->GetEntry(jentry);
-         run_spin_var = run_spin;
          if(run_candidate != run_spin)continue;
+         run_spin_var = run_spin;
          int shifted_clock = (clock_candidate + xshift)%120 ;
          bluebeam_spin_pattern = b_pattern[shifted_clock] *(-1);
          yellowbeam_spin_pattern = y_pattern[shifted_clock]*(-1);
