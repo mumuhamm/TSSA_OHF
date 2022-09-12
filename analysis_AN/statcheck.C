@@ -70,7 +70,7 @@ void plot_south(TH1F * hist1 , TH1F * hist2){
 
 
 
-void cosinemod(){
+void statcheck(){
    
    TH1F *xF_h_n_mp = new TH1F("xF_h_n_mp", "xF_h; x_{F}(=p_{z}/p_z^{max}) (a.u.); Entries", 1000, -0.1, 0.1);
    TH1F *pdtheta_h_n_mp = new TH1F("pdtheta_h_n_mp", "pdtheta_h; p#delta#theta (rad GeV/c); Entries", 100, 0.0, 0.4);
@@ -153,8 +153,9 @@ void cosinemod(){
    
    for (Int_t i=0;i<n_entries;i++){
       smu->GetEntry(i);
+      
 //--------------------------------------------------------------------------Fill histograms - statistics  check
-      if(pz_var > 0){
+      if(pz_var > 0 && north_cut && lastgap_var < 4 && (pt_var > 0 &&  pt_var < 7)){
          if(muoncharge_var ==1){
             xF_h_n_mp->Fill(x_F_var);
             pdtheta_h_n_mp->Fill(pdtheta_var);
@@ -173,7 +174,7 @@ void cosinemod(){
             
          }
       }
-      if (pz_var < 0){
+      if (pz_var < 0 && south_cut && lastgap_var < 4 && (pt_var > 0 &&  pt_var < 7)){
          if(muoncharge_var ==1){
             xF_h_s_mp->Fill(x_F_var);
             pdtheta_h_s_mp->Fill(pdtheta_var);
@@ -192,20 +193,41 @@ void cosinemod(){
          }
       }
       
-  //---------------------------------------------------------------------------------------------Calculation on Phi
-     // if(run_candidate_var != run_spin_var)continue;
-      std::cout << " candidate tree run number |"<< run_candidate_var <<"| \t bluebeam_spin_pattern |"<< bluebeam_spin_pattern<< "| \t yellowbeam_spin_pattern |"<< yellowbeam_spin_pattern<<"\n";
+  
       
       
       
       
       
    }
-      
-   /*float asym ;
-   asym = (sqrt(bin1_south_spinup_xfGT0->GetEntries()*bin1_north_spindown_xfGT0->GetEntries() ) -sqrt(bin1_south_spindown_xfGT0->GetEntries()*bin1_north_spinup_xfGT0->GetEntries()))/(sqrt(bin1_south_spinup_xfGT0->GetEntries()*bin1_north_spindown_xfGT0->GetEntries() ) +sqrt(bin1_south_spindown_xfGT0->GetEntries()*bin1_north_spinup_xfGT0->GetEntries()));
-   std::cout<<asym<<"\n";
-  */
+
+   
+   std::cout<< " #========================================================Stat Table================================================================="<<"\n";
+   std::cout<< " #========================================================| cuts | ================================================================="<<"\n";
+   std::cout<< "These are the cuts \n"
+   <<"south_cut = ( trhits > 12 && trchi2 < 10 && idhits > 6 && idchi2 < 5 && ddg0 < 8 && dg0 < 20 && (fabs(rapidity)>1.2 || fabs(rapidity)< 2.0) && pdtheta < 0.2)\n"
+   <<"north_cut = ( trhits > 12 && trchi2 < 10 && idhits > 6 && idchi2 < 5 && ddg0 < 8 && dg0 < 10 && (fabs(rapidity)>1.2 || fabs(rapidity)< 2.0) && pdtheta < 0.2)\n"
+   <<"For both arm : \t 0< pt< 7, r_ref < 125, lastgap < 4"<<"\n";
+   std::cout<< " #========================================================Stats ================================================================="<<"\n";
+   std::cout<<"|MuonPlus : xF-N:(S)|\t\t|MuonMinus : xF-N:(S)|"<<"\n";
+   std::cout<<"----------------------------------------------"<<"\n";
+   std::cout<<xF_h_n_mp->GetEntries()<<":"<<(xF_h_s_mp->GetEntries())<<"\t\t"<<xF_h_n_mn->GetEntries()<<":"<<(xF_h_s_mn->GetEntries())<<"\n";
+   std::cout<<"|MuonPlus : pdtheta-N:(S)|\t\t|MuonMinus : pdtheta-N:(S)|"<<"\n";
+   std::cout<<"----------------------------------------------"<<"\n";
+   std::cout<<pdtheta_h_n_mp->GetEntries()<<":"<<(pdtheta_h_s_mp->GetEntries())<<"\t\t"<<pdtheta_h_n_mn->GetEntries()<<":"<<(pdtheta_h_s_mn->GetEntries())<<"\n";
+   std::cout<<"|MuonPlus : DDG0-N:(S)|\t\t|MuonMinus : DDG0-N:(S)|"<<"\n";
+   std::cout<<"----------------------------------------------"<<"\n";
+   std::cout<<ddg0_h_n_mp->GetEntries()<<":"<<(ddg0_h_s_mp->GetEntries())<<"\t\t"<<ddg0_h_n_mn->GetEntries()<<":"<<(ddg0_h_s_mn->GetEntries())<<"\n";
+   std::cout<<"|MuonPlus : DG0-N:(S)|\t\t|MuonMinus : DG0-N:(S)|"<<"\n";
+   std::cout<<"----------------------------------------------"<<"\n";
+   std::cout<<dg0_h_n_mp->GetEntries()<<":"<<(dg0_h_s_mp->GetEntries())<<"\t\t"<<dg0_h_n_mn->GetEntries()<<":"<<(dg0_h_s_mn->GetEntries())<<"\n";
+   std::cout<<"|MuonPlus : PHI-N:(S)|\t\t|MuonMinus : PHI-N:(S)|"<<"\n";
+   std::cout<<"----------------------------------------------"<<"\n";
+   std::cout<<phi_h_n_mp->GetEntries()<<":"<<(phi_h_s_mp->GetEntries())<<"\t\t"<<phi_h_n_mn->GetEntries()<<":"<<(phi_h_s_mn->GetEntries())<<"\n";
+   std::cout<<"|MuonPlus : PT-N:(S)|\t\t|MuonMinus : PT-N:(S)|"<<"\n";
+   std::cout<<"----------------------------------------------"<<"\n";
+   std::cout<<pt_h_n_mp->GetEntries()<<":"<<(pt_h_s_mp->GetEntries())<<"\t\t"<<pt_h_n_mn->GetEntries()<<":"<<(pt_h_s_mn->GetEntries())<<"\n";
+   
    
    plot_north(xF_h_n_mp , xF_h_n_mn);
    plot_north(pdtheta_h_n_mp , pdtheta_h_n_mn);
