@@ -254,8 +254,8 @@ void analyzer(string cadidatefile, string output){
       pt_bin4 = (pt > 2.50 && pt < 3.00);
       pt_bin5 = (pt > 3.00 && pt < 3.50);
       pt_bin6 = (pt > 3.50 && pt < 5.00);
-      south_cut = ( trhits > 12 && trchi2 < 10 && idhits > 6 && idchi2 < 5 && ddg0 < 8 && dg0 < 20 && (fabs(rapidity)>1.2 || fabs(rapidity)< 2.0) && pdtheta < 0.2);
-      north_cut = ( trhits > 12 && trchi2 < 10 && idhits > 6 && idchi2 < 5 && ddg0 < 8 && dg0 < 10 && (fabs(rapidity)>1.2 || fabs(rapidity)< 2.0) && pdtheta < 0.2);
+      south_cut = ( trhits > 12 && trchi2 < 10 && idhits > 6 && idchi2 < 5 && ddg0 < 8 && dg0 < 20 && (fabs(rapidity)>1.2 || fabs(rapidity)< 2.2) && pdtheta < 0.2);
+      north_cut = ( trhits > 12 && trchi2 < 10 && idhits > 6 && idchi2 < 5 && ddg0 < 8 && dg0 < 10 && (fabs(rapidity)>1.2 || fabs(rapidity)< 2.2) && pdtheta < 0.2);
       
       pz_var = pz;
       px_var = px;
