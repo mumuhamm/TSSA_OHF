@@ -9,4 +9,4 @@ foreach i (/etc/profile.d/*.csh)
 end
 source $HOME/.cshrc
 source /opt/phenix/core/bin/phenix_setup.csh
-root.exe -b -q -l  '/gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/start_analysis/TSSA_OHF/analyzer.C("'${1}'" , "'${2}'")'
+root.exe -b -q -l  '/gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/TSSA_OHF/tree_makers/analyzer.C("'${1}'" , "'${2}'")'
