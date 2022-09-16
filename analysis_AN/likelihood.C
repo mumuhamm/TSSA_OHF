@@ -32,12 +32,12 @@ void likelihood(){
    
    Int_t nbins = 100;
    TChain* chain_data = new TChain("fit");
-   chain_data->Add("../fit.root");
+   chain_data->Add("/Users/md/Documents/Phenix_HF_Analysis/fitFour.root");
    Int_t nevt = (int)chain_data->GetEntries();
    std::cout<<"Number of total events  : "<<nevt<<"\n";
    
    TChain* chain_data_spin = new TChain("T");
-   chain_data_spin->Add("../spinDB_test.root");
+   chain_data_spin->Add("/Users/md/Documents/Phenix_HF_Analysis/spinDB_test.root");
    Int_t nevt_spin = (int)chain_data_spin->GetEntries();
    std::cout<<"Number of total events in the spin tree   : "<<nevt_spin<<"\n";
    //Creating a data set which we are going to fit with the variables defined in the PHYSICAL REVIEW D 95, 112001 (2017)
