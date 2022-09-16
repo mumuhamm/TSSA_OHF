@@ -44,6 +44,14 @@ void cosinemod(){
    Float_t epsilon2_Error[8] = {0};
    Float_t epsilon_PHI[12] = {0};
    Float_t epsilon_PHIError[12] = {0};
+   Float_t epsilon_SA_BB_PM[8] = {0};
+   Float_t epsilon_SA_BB_PMError[8] = {0};
+   Float_t epsilon_SA_BB_NM[8] = {0};
+   Float_t epsilon_SA_BB_NMError[8] = {0};
+   Float_t epsilon_NO_YB_PM[8] = {0};
+   Float_t epsilon_NO_YB_PMError[8] = {0};
+   Float_t epsilon_NO_YB_NM[8] = {0};
+   Float_t epsilon_NO_YB_NMError[8] = {0};
    TH1F * cosmod_h[6];
    for(Int_t i=0; i<6; ++i){ cosmod_h[i]= new TH1F(Form("myhist%d",i), Form("myhist%d",i), 100, -0.2, 0.2);}
    
@@ -70,6 +78,16 @@ void cosinemod(){
    Float_t SA_YB_NM_Event_R_DOWN[8]= {0};
    Float_t SA_YB_NM_Event_L_DOWN[8]= {0};
    
+   Float_t SA_BB_PM_Event_R_UP[8] = {0};
+   Float_t SA_BB_PM_Event_L_UP[8]= {0};
+   Float_t SA_BB_PM_Event_R_DOWN[8]= {0};
+   Float_t SA_BB_PM_Event_L_DOWN[8]= {0};
+   
+   Float_t SA_BB_NM_Event_R_UP[8] = {0};
+   Float_t SA_BB_NM_Event_L_UP[8] = {0};
+   Float_t SA_BB_NM_Event_R_DOWN[8]= {0};
+   Float_t SA_BB_NM_Event_L_DOWN[8]= {0};
+   
    Float_t NO_BB_PM_Event_R_UP[8] = {0};
    Float_t NO_BB_PM_Event_L_UP[8]= {0};
    Float_t NO_BB_PM_Event_R_DOWN[8]= {0};
@@ -79,6 +97,16 @@ void cosinemod(){
    Float_t NO_BB_NM_Event_L_UP[8] = {0};
    Float_t NO_BB_NM_Event_R_DOWN[8]= {0};
    Float_t NO_BB_NM_Event_L_DOWN[8]= {0};
+   
+   Float_t NO_YB_PM_Event_R_UP[8] = {0};
+   Float_t NO_YB_PM_Event_L_UP[8]= {0};
+   Float_t NO_YB_PM_Event_R_DOWN[8]= {0};
+   Float_t NO_YB_PM_Event_L_DOWN[8]= {0};
+   
+   Float_t NO_YB_NM_Event_R_UP[8] = {0};
+   Float_t NO_YB_NM_Event_L_UP[8] = {0};
+   Float_t NO_YB_NM_Event_R_DOWN[8]= {0};
+   Float_t NO_YB_NM_Event_L_DOWN[8]= {0};
    
    Float_t COSPHI_PM[8]={0};
    Float_t COSPHI_NM[8]={0};
@@ -107,7 +135,8 @@ void cosinemod(){
    
    bool south_cut;
    bool north_cut;
-   Float_t polarization;
+   Float_t polarization_yellow;
+   Float_t polarization_blue;
    
    smu->SetBranchAddress("pt_var",&pt_var);
    smu->SetBranchAddress("x_F_var",&x_F_var);
@@ -145,7 +174,8 @@ void cosinemod(){
    for (Int_t i=0;i<n_entries;i++){
       smu->GetEntry(i);
    if(run_candidate_var != run_spin_var)continue;
-      polarization = yellowbeam_pol_var;
+      polarization_yellow = yellowbeam_pol_var;
+      polarization_blue = bluebeam_pol_var;
       sinPhi = sin(phi_var);
       cosPhi = cos(phi_var);
       PHI_H->Fill(phi_var);
@@ -166,7 +196,7 @@ void cosinemod(){
                   if (yellowbeam_spin_pattern == 1)PHI_SA_YB_PM_Event_R_UP[k][j] = PHI_H->GetBinContent(j);
                   if (yellowbeam_spin_pattern == -1)PHI_SA_YB_PM_Event_R_DOWN[k][j] = PHI_H->GetBinContent(j);
                   
-                  std::cout<<" lets get printout the bin wise events in case phi binning : k & j "<<k<<"\t:&:\t"<<j<<"\t"<<PHI_SA_YB_PM_Event_R_UP[k][j]<<"\n";
+                 // std::cout<<" lets get printout the bin wise events in case phi binning : k & j "<<k<<"\t:&:\t"<<j<<"\t"<<PHI_SA_YB_PM_Event_R_UP[k][j]<<"\n";
                }
                
             }
@@ -240,9 +270,79 @@ void cosinemod(){
          }
         
          
-      }
+      }//x_F < 0 closes
       
+      //-------------------------------------------- Studies in x_F > 0 :South : Blue , North : Yellow -------------Run by run study & integration : Calculation on Phi
       
+      if(x_F_var > 0 ){
+         // South and blue beam
+         if(south_cut && r_ref_var < 180 && muoncharge_var ==1 ){
+            for(Int_t k =0; k< PT_H->GetNbinsX(); ++k){
+               if(bluebeam_spin_pattern == 1 ){
+                  
+                  if (px_var < 0) SA_BB_PM_Event_L_UP[k]=PT_H->GetBinContent(k);
+                  if (px_var > 0) SA_BB_PM_Event_R_UP[k]=PT_H->GetBinContent(k);
+               }
+               if(bluebeam_spin_pattern == -1 ){
+
+                  if (px_var < 0) SA_BB_PM_Event_L_DOWN[k] = PT_H->GetBinContent(k);
+                  if (px_var > 0) SA_BB_PM_Event_R_DOWN[k] = PT_H->GetBinContent(k);
+                  
+               }
+            }
+         }
+         if(south_cut && r_ref_var < 180 && muoncharge_var == 0 ){
+            for(Int_t k =0; k< PT_H->GetNbinsX(); ++k){
+               if(bluebeam_spin_pattern == 1 ){
+                  
+                  if (px_var < 0) SA_BB_NM_Event_L_UP[k]=PT_H->GetBinContent(k);
+                  if (px_var > 0) SA_BB_NM_Event_R_UP[k]=PT_H->GetBinContent(k);
+               }
+               if(bluebeam_spin_pattern == -1 ){
+                  
+                  if (px_var < 0) SA_BB_NM_Event_L_DOWN[k] = PT_H->GetBinContent(k);
+                  if (px_var > 0) SA_BB_NM_Event_R_DOWN[k] = PT_H->GetBinContent(k);
+                  
+               }
+            }
+         }
+         
+         // north and yellow beam
+         if(north_cut && r_ref_var < 180 && muoncharge_var == 1 ){
+            for(Int_t k =0; k< PT_H->GetNbinsX(); ++k){
+               if(yellowbeam_spin_pattern == 1 ){
+                  
+                  if (px_var < 0) NO_YB_PM_Event_L_UP[k]=PT_H->GetBinContent(k);//std::cout<<"bulldog_y"<<NO_YB_PM_Event_L_UP[k]<<"\n";
+                  if (px_var > 0) NO_YB_PM_Event_R_UP[k]=PT_H->GetBinContent(k);//std::cout<<"bulldog_x"<<NO_YB_PM_Event_R_UP[k]<<"\n";
+               }
+               if(yellowbeam_spin_pattern == -1 ){
+                  
+                  if (px_var < 0) NO_YB_PM_Event_L_DOWN[k] = PT_H->GetBinContent(k);
+                  if (px_var > 0) NO_YB_PM_Event_R_DOWN[k] = PT_H->GetBinContent(k);
+                  
+               }
+            }
+         }
+         
+         if(north_cut && r_ref_var < 180 && muoncharge_var == 0){
+            for(Int_t k =0; k< PT_H->GetNbinsX(); ++k){
+               if(yellowbeam_spin_pattern == 1 ){
+                  
+                  if (px_var < 0) NO_YB_NM_Event_L_UP[k]=PT_H->GetBinContent(k);
+                  if (px_var > 0) NO_YB_NM_Event_R_UP[k]=PT_H->GetBinContent(k);
+               }
+               if(yellowbeam_spin_pattern == -1 ){
+                  
+                  if (px_var < 0) NO_YB_NM_Event_L_DOWN[k] = PT_H->GetBinContent(k);
+                  if (px_var > 0) NO_YB_NM_Event_R_DOWN[k] = PT_H->GetBinContent(k);
+                  
+               }
+            }
+         }
+         
+         
+         
+      }// x_f > 0 closses
    
       
       
@@ -256,107 +356,162 @@ void cosinemod(){
    
    for(Int_t j=0; j<8; ++j){
       
+      //south & yellow
       Float_t var_1 = sqrt(SA_YB_PM_Event_L_UP[j] * SA_YB_PM_Event_R_DOWN[j]);
       Float_t var_2 = sqrt(SA_YB_PM_Event_L_DOWN[j] * SA_YB_PM_Event_R_UP[j]);
-      epsilon[j] = ((var_1 - var_2)/(var_1+var_2))/(polarization*cosPhi);
+      epsilon[j] = ((var_1 - var_2)/(var_1+var_2))/(polarization_yellow*cosPhi);
       epsilon_Error[j] = (sqrt(SA_YB_PM_Event_L_UP[j]*SA_YB_PM_Event_R_DOWN[j]*SA_YB_PM_Event_L_DOWN[j] * SA_YB_PM_Event_R_UP[j])/((var_1+var_2)*(var_1+var_2)))*sqrt(1/SA_YB_PM_Event_L_UP[j] + 1/SA_YB_PM_Event_R_DOWN[j] + 1/SA_YB_PM_Event_L_DOWN[j] + 1/SA_YB_PM_Event_R_UP[j] );
       
       
       
       Float_t var_3 = sqrt(SA_YB_NM_Event_L_UP[j] * SA_YB_NM_Event_R_DOWN[j]);
       Float_t var_4 = sqrt(SA_YB_NM_Event_L_DOWN[j] * SA_YB_NM_Event_R_UP[j]);
-      epsilon2[j] = ((var_3 - var_4)/(var_3+var_4))/(polarization*cosPhi);
+      epsilon2[j] = ((var_3 - var_4)/(var_3+var_4))/(polarization_yellow*cosPhi);
       epsilon2_Error[j] = (sqrt(SA_YB_NM_Event_L_UP[j]*SA_YB_NM_Event_R_DOWN[j]*SA_YB_NM_Event_L_DOWN[j] * SA_YB_NM_Event_R_UP[j])/((var_1+var_2)*(var_1+var_2)))*sqrt(1/SA_YB_NM_Event_L_UP[j] + 1/SA_YB_NM_Event_R_DOWN[j] + 1/SA_YB_NM_Event_L_DOWN[j] + 1/SA_YB_NM_Event_R_UP[j] );
       
-      
+      //North & blue
       Float_t var_5 = sqrt(NO_BB_PM_Event_L_UP[j]*NO_BB_PM_Event_R_DOWN[j]);
       Float_t var_6 = sqrt(NO_BB_PM_Event_L_DOWN[j]*NO_BB_PM_Event_R_UP[j]);
-      epsilon_PM_NO = ((var_5 - var_6)/(var_5+var_6))/(polarization*cosPhi);
-      epsilon_PM_NO_Error = (sqrt(NO_BB_PM_Event_L_UP[j]*NO_BB_PM_Event_R_UP[j]*NO_BB_PM_Event_R_UP[j]*NO_BB_PM_Event_R_DOWN[j])/((var_5+var_6)*(var_5+var_6)))*sqrt(1/NO_BB_PM_Event_L_UP[j] + 1/NO_BB_PM_Event_R_DOWN[j] + 1/NO_BB_PM_Event_L_DOWN[j] + 1/ NO_BB_PM_Event_R_DOWN[j]);
+      epsilon_PM_NO[j] = ((var_5 - var_6)/(var_5+var_6))/(polarization_blue*cosPhi);
+      epsilon_PM_NO_Error[j] = (sqrt(NO_BB_PM_Event_L_UP[j]*NO_BB_PM_Event_R_UP[j]*NO_BB_PM_Event_R_UP[j]*NO_BB_PM_Event_R_DOWN[j])/((var_5+var_6)*(var_5+var_6)))*sqrt(1/NO_BB_PM_Event_L_UP[j] + 1/NO_BB_PM_Event_R_DOWN[j] + 1/NO_BB_PM_Event_L_DOWN[j] + 1/ NO_BB_PM_Event_R_DOWN[j]);
       
       
       Float_t var_7 = sqrt(NO_BB_NM_Event_L_UP[j]*NO_BB_NM_Event_R_DOWN[j]);
       Float_t var_8 = sqrt(NO_BB_NM_Event_L_DOWN[j]*NO_BB_NM_Event_R_UP[j]);
-      epsilon_NM_NO = ((var_7 - var_8)/(var_7+var_8))/(polarization*cosPhi);
-      epsilon_NM_NO_Error = (sqrt(NO_BB_PM_Event_L_UP[j]*NO_BB_PM_Event_R_UP[j]*NO_BB_PM_Event_R_UP[j]*NO_BB_PM_Event_R_DOWN[j])/((var_5+var_6)*(var_5+var_6)))*sqrt(1/NO_BB_PM_Event_L_UP[j] + 1/NO_BB_PM_Event_R_DOWN[j] + 1/NO_BB_PM_Event_L_DOWN[j] + 1/ NO_BB_PM_Event_R_DOWN[j]);
+      epsilon_NM_NO[j] = ((var_7 - var_8)/(var_7+var_8))/(polarization_blue*cosPhi);
+      epsilon_NM_NO_Error[j] = (sqrt(NO_BB_NM_Event_L_UP[j]*NO_BB_NM_Event_R_UP[j]*NO_BB_NM_Event_R_UP[j]*NO_BB_NM_Event_R_DOWN[j])/((var_7+var_8)*(var_7+var_8)))*sqrt(1/NO_BB_NM_Event_L_UP[j] + 1/NO_BB_NM_Event_R_DOWN[j] + 1/NO_BB_NM_Event_L_DOWN[j] + 1/ NO_BB_NM_Event_R_DOWN[j]);
+      
+      // South and blue
+      
+      Float_t var_9 = sqrt(SA_BB_PM_Event_L_UP[j] * SA_BB_PM_Event_R_DOWN[j]);
+      Float_t var_10 = sqrt(SA_BB_PM_Event_L_DOWN[j] * SA_BB_PM_Event_R_UP[j]);
+      epsilon_SA_BB_PM[j] = ((var_9 - var_10)/(var_9+var_10))/(polarization_blue*cosPhi);
+      epsilon_SA_BB_PMError[j] = (sqrt(SA_BB_PM_Event_L_UP[j]*SA_BB_PM_Event_R_DOWN[j]*SA_BB_PM_Event_L_DOWN[j] * SA_BB_PM_Event_R_UP[j])/((var_9+var_10)*(var_9+var_10)))*sqrt(1/SA_BB_PM_Event_L_UP[j] + 1/SA_BB_PM_Event_R_DOWN[j] + 1/SA_BB_PM_Event_L_DOWN[j] + 1/SA_BB_PM_Event_R_UP[j] );
+      
+      
+      
+      Float_t var_11 = sqrt(SA_BB_NM_Event_L_UP[j] * SA_BB_NM_Event_R_DOWN[j]);
+      Float_t var_12 = sqrt(SA_BB_NM_Event_L_DOWN[j] * SA_BB_NM_Event_R_UP[j]);
+      epsilon_SA_BB_NM[j] = ((var_11 - var_12)/(var_11+var_12))/(polarization_blue*cosPhi);
+      epsilon_SA_BB_NMError[j] = (sqrt(SA_BB_NM_Event_L_UP[j]*SA_BB_NM_Event_R_DOWN[j]*SA_BB_NM_Event_L_DOWN[j] * SA_BB_NM_Event_R_UP[j])/((var_11+var_12)*(var_11+var_12)))*sqrt(1/SA_BB_NM_Event_L_UP[j] + 1/SA_BB_NM_Event_R_DOWN[j] + 1/SA_BB_NM_Event_L_DOWN[j] + 1/SA_BB_NM_Event_R_UP[j] );
+      
+      
+      
+      //North & Yellow
+      
+      Float_t var_13 = sqrt(NO_YB_PM_Event_L_UP[j] * NO_YB_PM_Event_R_DOWN[j]);
+      cout<<var_13<<"\n";
+      
+      Float_t var_14 = sqrt(NO_YB_PM_Event_L_DOWN[j] * NO_YB_PM_Event_R_UP[j]);
+      epsilon_NO_YB_PM[j] = ((var_13 - var_14)/(var_13+var_14))/(polarization_yellow*cosPhi);
+      epsilon_NO_YB_PMError[j] = (sqrt(NO_YB_PM_Event_L_UP[j]*NO_YB_PM_Event_R_UP[j]*NO_YB_PM_Event_R_UP[j]*NO_YB_PM_Event_R_DOWN[j])/((var_13+var_14)*(var_13+var_14)))*sqrt(1/NO_YB_PM_Event_L_UP[j] + 1/NO_YB_PM_Event_R_DOWN[j] + 1/NO_YB_PM_Event_L_DOWN[j] + 1/ NO_YB_PM_Event_R_DOWN[j]);
+      
+     
+      Float_t var_15 = sqrt(NO_YB_NM_Event_L_UP[j]*NO_YB_NM_Event_R_DOWN[j]);
+      Float_t var_16 = sqrt(NO_YB_NM_Event_L_DOWN[j]*NO_YB_NM_Event_R_UP[j]);
+      epsilon_NO_YB_NM[j] = ((var_15 - var_16)/(var_15 + var_16))/(polarization_yellow*cosPhi);
+      epsilon_NO_YB_NMError[j] = (sqrt(NO_YB_NM_Event_L_UP[j]*NO_YB_NM_Event_R_UP[j]*NO_YB_NM_Event_R_UP[j]*NO_YB_NM_Event_R_DOWN[j])/((var_15+var_16)*(var_15+var_16)))*sqrt(1/NO_YB_NM_Event_L_UP[j] + 1/NO_YB_NM_Event_R_DOWN[j] + 1/NO_YB_NM_Event_L_DOWN[j] + 1/ NO_YB_NM_Event_R_DOWN[j]);
+      
+      //std::cout<<"lets take the print out of this fellow raw asymmetry in phi case when jump to next pT bin "<<j<<": \t"<< epsilon_NO_YB_NM[j] <<"\n";
    }
+   
+   
+   
    
    for(Int_t i=0; i<8; ++i){
       for(Int_t j=0; j<12; ++j){
          
          Float_t var_1 = sqrt(PHI_SA_YB_PM_Event_R_UP[i][j] * PHI_SA_YB_PM_Event_R_DOWN[i][j]);
          Float_t var_2 = sqrt(PHI_SA_YB_PM_Event_L_DOWN[i][j] * PHI_SA_YB_PM_Event_R_UP[i][j]);
-         epsilon_PHI[j] = ((var_1 - var_2)/(var_1+var_2))/(polarization*cosPhi);
-         std::cout<<"lets take the print out of this fellow raw asymmetry in phi case when jump to next pT bin "<<i<<": \t"<< epsilon_PHI[j] <<"\n";
+         epsilon_PHI[j] = ((var_1 - var_2)/(var_1+var_2))/(polarization_yellow*cosPhi);
+        // std::cout<<"lets take the print out of this fellow raw asymmetry in phi case when jump to next pT bin "<<i<<": \t"<< epsilon_PHI[j] <<"\n";
          
       }
    }
    
    
-  
+ //-----------------------------------------------------------------------------------------------------------------------------------------------"<<"\n";
    
-  
-    
-   
-   
-   
-   
-   
-   
-   
-   
+ 
+   auto gr_no_pm = new TGraphErrors(binnumpt,pt_diff,epsilon_PM_NO,pt_diffErr,epsilon_PM_NO_Error);
+   gr_no_pm->SetTitle("x_F < 0 :: Y : AN, X :PT");
+   gr_no_pm->SetMarkerColor(4);
+   gr_no_pm->SetLineColor(4);
+   gr_no_pm->SetMarkerStyle(8);
+   gr_no_pm->GetXaxis()->SetTitle("p_{T}");
+   gr_no_pm->GetYaxis()->SetTitle("A_{N}");
    
    
+   auto gr_no_nm = new TGraphErrors(binnumpt,pt_diff,epsilon_NM_NO,pt_diffErr,epsilon_NM_NO_Error);
+   gr_no_nm->SetTitle("x_F < 0 :: Y : AN, X :PT");
+   gr_no_nm->SetMarkerColor(1);
+   gr_no_nm->SetLineColor(1);
+   gr_no_nm->SetMarkerStyle(8);
+   gr_no_nm->GetXaxis()->SetTitle("p_{T}");
+   gr_no_nm->GetYaxis()->SetTitle("A_{N}");
+   
+   auto c2 = new TCanvas("c2","Blue : AN, X :PT",200,10,700,500);
+   c2->SetFillColor(0);
+   c2->GetFrame()->SetFillColor(21);
+   c2->GetFrame()->SetBorderSize(12);
+   TMultiGraph *mg_no = new TMultiGraph();
+   mg_no->Add(gr_no_pm);
+   mg_no->Add(gr_no_nm);
+   mg_no->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+   mg_no->GetYaxis()->SetTitle("A_{N}");
+      // Change the axis limits
+   gPad->Modified();
+   mg_no->GetXaxis()->SetLimits(0.,10.);
+   mg_no->Draw("a p s ; ; 5 s=0.5");
+   TLatex T0_NO;
+   T0_NO.SetTextColor(2);
+   T0_NO.DrawLatexNDC(.2,.30, "x_{F}<0, North Arm, Blue, A_{N}=#frac{#epsilon}{P#bulletcos#phi}");
+   TLatex T1_NO;
+   T1_NO.SetTextColor(4);
+   T1_NO.DrawLatexNDC(.6,.20, "#mu^{+}");
+   TLatex T2_NO;
+   T2_NO.SetTextColor(1);
+   T2_NO.DrawLatexNDC(.7,.20, "#mu^{-}");
+   
+//-----------------------------------------------------------------------------------------------------------------------------------------------"<<"\n";
+   auto gr_no_yb_pm = new TGraphErrors(binnumpt,pt_diff,epsilon_NO_YB_PM,pt_diffErr,epsilon_NO_YB_PMError);
+   gr_no_yb_pm->SetTitle("x_F < 0 :: Y : AN, X :PT");
+   gr_no_yb_pm->SetMarkerColor(4);
+   gr_no_yb_pm->SetLineColor(4);
+   gr_no_yb_pm->SetMarkerStyle(8);
+   gr_no_yb_pm->GetXaxis()->SetTitle("p_{T}");
+   gr_no_yb_pm->GetYaxis()->SetTitle("A_{N}");
    
    
+   auto gr_no_yb_nm = new TGraphErrors(binnumpt,pt_diff,epsilon_NO_YB_NM,pt_diffErr,epsilon_NO_YB_NMError);
+   gr_no_yb_nm->SetTitle("x_F < 0 :: Y : AN, X :PT");
+   gr_no_yb_nm->SetMarkerColor(1);
+   gr_no_yb_nm->SetLineColor(1);
+   gr_no_yb_nm->SetMarkerStyle(8);
+   gr_no_yb_nm->GetXaxis()->SetTitle("p_{T}");
+   gr_no_yb_nm->GetYaxis()->SetTitle("A_{N}");
    
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
+   auto c4 = new TCanvas("c4","Y : AN, X :PT",200,10,700,500);
+   c4->SetFillColor(0);
+   c4->GetFrame()->SetFillColor(21);
+   c4->GetFrame()->SetBorderSize(12);
+   TMultiGraph *mg_no_yb_pm = new TMultiGraph();
+   mg_no_yb_pm->Add(gr_no_yb_pm);
+   mg_no_yb_pm->Add(gr_no_yb_nm);
+   mg_no_yb_pm->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+   mg_no_yb_pm->GetYaxis()->SetTitle("A_{N}");
+   gPad->Modified();
+   mg_no_yb_pm->GetXaxis()->SetLimits(0.,10.);
+   mg_no_yb_pm->Draw("a p s ; ; 5 s=0.5");
+   TLatex T0_NO_YB;
+   T0_NO_YB.SetTextColor(2);
+   T0_NO_YB.DrawLatexNDC(.2,.30, "x_{F}> 0, North Arm, Yellow Beam, A_{N}=#frac{#epsilon}{P#bulletcos#phi}");
+   TLatex T1_NO_YB;
+   T1_NO_YB.SetTextColor(4);
+   T1_NO_YB.DrawLatexNDC(.6,.20, "#mu^{+}");
+   TLatex T2_NO_YB;
+   T2_NO_YB.SetTextColor(1);
+   T2_NO_YB.DrawLatexNDC(.7,.20, "#mu^{-}");
    
    
    
@@ -371,6 +526,51 @@ void cosinemod(){
    
    
    TF1 *f1 = new TF1("f1","[0]*cos(x)",1.25,10);
+   
+   
+   auto gr_sa_bb_pm = new TGraphErrors(binnumpt,pt_diff,epsilon_SA_BB_PM,pt_diffErr,epsilon_SA_BB_PMError);
+   gr_sa_bb_pm->SetTitle("x_F > 0 :: Y : AN, X :PT");
+   gr_sa_bb_pm->SetMarkerColor(4);
+   gr_sa_bb_pm->SetLineColor(4);
+   gr_sa_bb_pm->SetMarkerStyle(8);
+   gr_sa_bb_pm->GetXaxis()->SetTitle("p_{T}");
+   gr_sa_bb_pm->GetYaxis()->SetTitle("A_{N}");
+   
+   
+   auto gr_sa_bb_nm = new TGraphErrors(binnumpt,pt_diff,epsilon_SA_BB_NM,pt_diffErr,epsilon_SA_BB_NMError);
+   gr_sa_bb_nm->SetTitle("x_F > 0 :: Y : AN, X :PT");
+   gr_sa_bb_nm->SetMarkerColor(1);
+   gr_sa_bb_nm->SetLineColor(1);
+   gr_sa_bb_nm->SetMarkerStyle(8);
+   gr_sa_bb_nm->GetXaxis()->SetTitle("p_{T}");
+   gr_sa_bb_nm->GetYaxis()->SetTitle("A_{N}");
+   
+   auto c3 = new TCanvas("c3","Blue : AN, X :PT",200,10,700,500);
+   c3->SetFillColor(0);
+   c3->GetFrame()->SetFillColor(21);
+   c3->GetFrame()->SetBorderSize(12);
+   TMultiGraph *mg_sa_bb = new TMultiGraph();
+   mg_sa_bb->Add(gr_sa_bb_pm);
+   mg_sa_bb->Add(gr_sa_bb_nm);
+   mg_sa_bb->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+   mg_sa_bb->GetYaxis()->SetTitle("A_{N}");
+      // Change the axis limits
+   gPad->Modified();
+   mg_sa_bb->GetXaxis()->SetLimits(0.,10.);
+   mg_sa_bb->Draw("a p s ; ; 5 s=0.5");
+   TLatex T0_SA_BB;
+   T0_SA_BB.SetTextColor(2);
+   T0_SA_BB.DrawLatexNDC(.2,.30, "x_{F}> 0, South Arm, Blue, A_{N}=#frac{#epsilon}{P#bulletcos#phi}");
+   TLatex T1_SA_BB;
+   T1_SA_BB.SetTextColor(4);
+   T1_SA_BB.DrawLatexNDC(.6,.20, "#mu^{+}");
+   TLatex T2_SA_BB;
+   T2_SA_BB.SetTextColor(1);
+   T2_SA_BB.DrawLatexNDC(.7,.20, "#mu^{-}");
+   
+   //-----------------------------------------------------------------------------------------------------------------------------------------------"<<"\n";
+   
+   
    
    auto gr = new TGraphErrors(binnumpt,pt_diff,epsilon,pt_diffErr,epsilon_Error);
    gr->SetTitle("x_F < 0 :: Y : AN, X :PT");
@@ -401,12 +601,14 @@ void cosinemod(){
    TMultiGraph *mg = new TMultiGraph();
    mg->Add(gr);
    mg->Add(gr1);
-      //mg->GetXaxis()->SetTitle("p_{T}");
-      //mg->GetYaxis()->SetTitle("A_{N}");
+   mg->GetXaxis()->SetTitle("p_{T}");
+   mg->GetYaxis()->SetTitle("A_{N}");
+   gPad->Modified();
+   mg->GetXaxis()->SetLimits(0.,10.);
    mg->Draw("a p s ; ; 5 s=0.5");
    TLatex T0;
    T0.SetTextColor(2);
-   T0.DrawLatexNDC(.4,.30, "x_{F}<0, Yellow, A_{N}=#frac{#epsilon}{P#bulletcos#phi}");
+   T0.DrawLatexNDC(.2,.30, "x_{F}<0, South Arm, Yellow, A_{N}=#frac{#epsilon}{P#bulletcos#phi}");
    TLatex T1;
    T1.SetTextColor(4);
    T1.DrawLatexNDC(.6,.20, "#mu^{+}");
