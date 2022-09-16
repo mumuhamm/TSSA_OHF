@@ -52,11 +52,11 @@ void timediff_treemaker(unsigned fnum ){
 	auto fout = new TFile(fname, "RECREATE");
 	auto tout = new TTree("t", "LAPPD Tree");
 	unsigned ic; 
-	double tt[16], aa[16], trk_tx, trk_ty, baseline_val[16];//dt, t0, t1,  *taddr[2] = {&t0, &t1};//
+	double lappd_tt[11][32], lappd_aa[11][32], trk_tx, trk_ty, lappd_baseline_val[11][32];//dt, t0, t1,  *taddr[2] = {&t0, &t1};//
 	double baseline0, baseline1, *baddr[2] = {&baseline0, &baseline1};
         //double a0, a1, *aaddr[2] = {&a0, &a1}, tx, ty;
-	bool ok[16];
-	int  bestpeak_position[16], trk_cluster_size[4], trk_hits_first[2][4], trk_hits_second[2][4];
+
+	int  lappd_bestpeak_position[11][32], trk_cluster_size[4], trk_hits_first[2][4], trk_hits_second[2][4];
 	double trig_t0,trig_t1,trig_t2,trig_t3, *trig_taddr[4] = {&trig_t0, &trig_t1,&trig_t2,&trig_t3};
         double trig_a0, trig_a1, trig_a2, trig_a3, *trig_aaddr[4] = {&trig_a0, &trig_a1,&trig_a2,&trig_a3};
 
@@ -76,14 +76,12 @@ void timediff_treemaker(unsigned fnum ){
    	tout->Branch("trig_a2", &trig_a2,"trig_a2/D");
    	tout->Branch("trig_a3", &trig_a3,"trig_a3/D");
 
-       //=======Planacon======//
+       //=======LAPPD : L03C board : Using Chennel & Digitizer ======//
 
-	tout->Branch("tt", tt,"tt[16]/D");
-        tout->Branch("ic", &ic,"ic/I");
-        tout->Branch("aa",  aa,"aa[16]/D");
-        tout->Branch("ok",  ok,"ok[16]/D");
-	tout->Branch("baseline_val", &baseline_val, "baseline_val[16]/D");
-        tout->Branch("bestpeak_position", &bestpeak_position, "bestpeak_position[16]/I");
+	tout->Branch("lappd_tt", lappd_tt,"lappd_tt[11][32]/D");
+        tout->Branch("lappd_aa",  lappd_aa,"lappd_aa[11][32]/D");
+	tout->Branch("lappd_baseline_val", &lappd_baseline_val, "lappd_baseline_val[11][32]/D");
+        tout->Branch("lappd_bestpeak_position", &lappd_bestpeak_position, "lappd_bestpeak_position[11][32]/I");
         
         //===============DRS4 Cherenkov============//
         
@@ -98,7 +96,7 @@ void timediff_treemaker(unsigned fnum ){
 	tout->Branch("baseline_chrnkv", &baseline_chrnkv,"baseline_chrnkv/D");
 	
 
-        //============LAPPD: L03C board============//
+        //============LAPPD: L03C board : Using Pixel ===========//
 
 	double planacon_timing_L03C_allpixel[24][24], tdiff_L03C_allpixel[24][24], baseline_L03C_allpixel[24][24], amplitude_L03C_allpixel[24][24];
 	double amplitude_L03C_allpixel_for2D[24][24], tracelength_L03C_allpixel[24][24];
@@ -126,7 +124,7 @@ void timediff_treemaker(unsigned fnum ){
         //========Tracker=====================//
 	
 
-
+	tout->Branch("ic", &ic,"ic/I");
 	tout->Branch("trk_tx", &trk_tx,"trk_tx/D");
         tout->Branch("trk_ty", &trk_ty,"trk_ty/D");
 	tout->Branch("trk_cluster_size", &trk_cluster_size, "trk_cluster_size[4]/I");
@@ -257,10 +255,10 @@ void timediff_treemaker(unsigned fnum ){
 
  
 #if 1
-	for(unsigned pl=0; pl<16; pl++) {
-                ok[pl] = false;
-		auto v1742 = t1450->m_V1742s[0];
-                auto planacon = v1742->GetChannel(pl);
+	for( unsigned dig_n = 0; dig_n < t1450->m_V1742s.size() ; dig_n++){
+				auto v1742 = t1450->m_V1742s[dig_n];
+	for(unsigned ch_n =0; ch_n < 32 ; ch_n++) {
+                auto planacon = v1742->GetChannel(ch_n);
 		double baseline = planacon->CalculateBaseline(0, 10);
                // printf("@P@  Planacon %d baseline assumed : %7.2f [mV]\n", pl, baseline);
                 int i0 = planacon->ThresholdCrossing(t1450->m_PlanaconPulseSearchThreshold + baseline);
@@ -270,25 +268,25 @@ void timediff_treemaker(unsigned fnum ){
                 if (ifrom < 0) continue;//goto _next_event;
                 int ito = ifrom + int(t1450->m_PlanaconPulseBaselineWindowWidth) - 1;
 		double baseline_pl = planacon->CalculateBaseline(ifrom, ito);
-                baseline_val[pl] = baseline_pl;
+                lappd_baseline_val[dig_n][ch_n] = baseline_pl;
                 //printf("@p@  Planacon %d baseline estimate: %7.2f [mV]\n", pl, baseline_pl);
 		int jfrom = i0;
                 int jto = jfrom + t1450->m_PlanaconPulsePeakWindowWidth - 1;
                 int jpeak = planacon->SimplePeakSearch(jfrom, jto);
-		bestpeak_position[pl] = jpeak;
+		lappd_bestpeak_position[dig_n][ch_n] = jpeak;
                 //printf("@P@  Planacon %d peak position: %4d [ismp]\n", pl, jpeak);
 
                 double amplitude = planacon->m_Data[jpeak] - baseline_pl;
-                //printf("@P@  Planacon %d peak amplitude: %7.2f [mV]\n", pl, amplitude);
-		aa[pl] = -amplitude;
+                printf("@P@  single photon cluster %d peak amplitude: %7.2f [mV]\n", ch_n, amplitude);
+		lappd_aa[dig_n][ch_n] = -amplitude;
 #if 1
-                tt[pl] = planacon->m_TimingReference =
+                lappd_tt[dig_n][ch_n] = planacon->m_TimingReference =
                 planacon->LeadingEdgeRangeFit(   t1450->m_PlanaconPulseFitRange[0]*amplitude    + baseline_pl,
                                                t1450->m_PlanaconPulseFitRange[1]*amplitude    + baseline_pl,
                                             1, t1450->m_PlanaconPulseFitSetPoint*amplitude    + baseline_pl);
 #else
 
-		*taddr[pl] = planacon->m_TimingReference = 
+		*taddr[ch_n] = planacon->m_TimingReference = 
               planacon->LeadingEdgeSinglePointFit(t1450->m_PlanaconPulseFitSetPoint*amplitude + baseline);
 #endif
 		//printf("@P@  Planacon %d timing: %7.2f [ps]\n", pl, planacon->m_TimingReference);
@@ -301,7 +299,7 @@ void timediff_treemaker(unsigned fnum ){
    assert(ifrom >=0 && ito > ifrom);
    double baseline = planacon->CalculateBaseline(ifrom, ito);
    //printf("@N@  NIM pulse %d baseline estimate: %7.2f [mV]\n", pl, baseline);
-   *taddr[pl] = planacon->m_TimingReference =
+   *taddr[ch_n] = planacon->m_TimingReference =
    planacon->LeadingEdgeRangeFit(t1450->m_NIMPulseFitRange[0]+baseline,
                                  t1450->m_NIMPulseFitRange[1]+baseline,
                                  1, t1450->m_NIMPulseFitSetPoint+baseline);
@@ -321,15 +319,15 @@ void timediff_treemaker(unsigned fnum ){
      
    int jfrom = ipeak + t1450->m_PlanaconBaselineWindowOffset;
    int jto = jfrom + t1450->m_PlanaconBaselineWindowWidth - 1;
-   double baseline = *baddr[pl] = planacon->CalculateBaseline(jfrom, jto);
+   double baseline = *baddr[ch_n] = planacon->CalculateBaseline(jfrom, jto);
    //printf("@@@  Planacon %d baseline estimate: %7.2f [mV]\n", pl, baseline);
    
       
    double amplitude = planacon->m_Data[ipeak] - baseline;
    //printf("@@@  Planacon %d amplitude        : %7.2f [mV]\n", pl, amplitude);
-   *aaddr[pl] = -amplitude;
+   *aaddr[ch_n] = -amplitude;
    
-   planacon->m_TimingReference = *taddr[pl] =
+   planacon->m_TimingReference = *taddr[ch_n] =
    planacon->LeadingEdgeRangeFit(t1450->m_PlanaconPulseFitRange[0]*amplitude+baseline,
                                  t1450->m_PlanaconPulseFitRange[1]*amplitude+baseline,
                                  1, t1450->m_PlanaconPulseFitSetPoint*amplitude+baseline);
@@ -338,8 +336,8 @@ void timediff_treemaker(unsigned fnum ){
 #endif
    
       
-   ok[pl] = true;
-} //for planacon
+} //for channnel
+} //for digitizer
 #endif
 
 
