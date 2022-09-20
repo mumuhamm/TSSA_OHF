@@ -47,21 +47,45 @@ void Time_Resolution(){
          amp_time_lappd[i][j] = new TProfile(Form("amplappd%dchannel%d",i,j),Form("amp_lappd_digitizer#_%d_channel#_%d;TS [ns];Amp [mV]",i,j),10,0.0,20,1,400);
       }
    }
-   TFile * lfile = new TFile("../timediff_tree_00023342.root");//ltest-00023342.root");
+   TFile * lfile = new TFile("/Users/md/Documents/Phenix_HF_Analysis/timediff_tree_00023342.root");//ltest-00023342.root");
    TTree * ltree = (TTree*)lfile->Get("t");
    ltree->Print();
    Int_t nentries = ltree->GetEntries();
    std::cout<<" Number of events in the tree "<< nentries<<"\n";
-   Double_t amplitude_L03C_allpixel_for2D[24][24];
+   
    Double_t lappd_tt[11][32], lappd_aa[11][32];
    Double_t lappd_baseline_val[11][32];
-   Int_t lappd_bestpeak_position[11][32];
-   ltree->SetBranchAddress("amplitude_L03C_allpixel_for2D",&amplitude_L03C_allpixel_for2D[0][0]);
+   Int_t lappd_bestpeak_position[11][32], cluster_L03C_pixelcount;
+   Double_t planacon_timing_L03C_allpixel[24][24], tdiff_L03C_allpixel[24][24],amplitude_L03C_allpixel_for2D[24][24], tracelength_L03C_allpixel[24][24];
+   Double_t baseline_L03C_allpixel[24][24], amplitude_L03C_allpixel[24][24];
+   Double_t cluster_L03C_X,cluster_L03C_Y ,cluster_L03C_Time ,cluster_L03C_R,cluster_L03C_amplitude;
+   
+   Double_t trig_t0, trig_t1, trig_t2, trig_t3;
+   
    ltree->SetBranchAddress("lappd_aa",&lappd_aa[0][0]);
    ltree->SetBranchAddress("lappd_tt",&lappd_tt[0][0]);
    ltree->SetBranchAddress("lappd_baseline_val",&lappd_baseline_val[0][0]);
    ltree->SetBranchAddress("lappd_bestpeak_position",&lappd_bestpeak_position[0][0]);
+   ltree->SetBranchAddress("cluster_L03C_pixelcount",&cluster_L03C_pixelcount);
+   ltree->SetBranchAddress("cluster_L03C_amplitude",&cluster_L03C_amplitude);
+   ltree->SetBranchAddress("cluster_L03C_X",&cluster_L03C_X);
+   ltree->SetBranchAddress("cluster_L03C_Y",&cluster_L03C_Y);
+   ltree->SetBranchAddress("cluster_L03C_R",&cluster_L03C_R);
+   ltree->SetBranchAddress("cluster_L03C_Time",&cluster_L03C_Time);
    
+   
+   ltree->SetBranchAddress("trig_t0",&trig_t0);
+   ltree->SetBranchAddress("trig_t1",&trig_t1);
+   ltree->SetBranchAddress("trig_t2",&trig_t2);
+   ltree->SetBranchAddress("trig_t3",&trig_t3);
+   
+   
+   ltree->SetBranchAddress("planacon_timing_L03C_allpixel",&planacon_timing_L03C_allpixel[0][0]);
+   ltree->SetBranchAddress("tdiff_L03C_allpixel",&tdiff_L03C_allpixel[0][0]);
+   ltree->SetBranchAddress("baseline_L03C_allpixel",&baseline_L03C_allpixel[0][0]);
+   ltree->SetBranchAddress("amplitude_L03C_allpixel",&amplitude_L03C_allpixel[0][0]);
+   ltree->SetBranchAddress("tracelength_L03C_allpixel",&tracelength_L03C_allpixel[0][0]);
+   ltree->SetBranchAddress("amplitude_L03C_allpixel_for2D",&amplitude_L03C_allpixel_for2D[0][0]);
    
    
    
@@ -72,24 +96,45 @@ void Time_Resolution(){
    TH2F *hxvsy = new TH2F("hxvsy", "Cluster position x vs cluster position;Cluster position x ;Cluster position y", 24, -50.0,50,24, -50.0,50  );
     auto h2 = new TH2D("h2", "", 24, 0.0, 24, 24, 0.0, 24);
    for (unsigned i =0; i<channel_number; ++i){
-      time_r[i]= new TH1D(Form("mhistogram_%d", i), Form("diffrence_time_[%d-(%d-1)]", i,i), 100, -500, 500  );
+      time_r[i]= new TH1D(Form("mhistogram_%d", i), Form("diffrence_time_[%d-(%d-1)]", i,i), 100, -500.0, 500.0  );
       amp_diff_channel[i]= new TH1D(Form("ammdiff_%d", i), Form("diffrence_amplitude_[%d-(%d-1)]", i,i), 100, -500, 500  );
    }
-   
+   TH1D * cluster_amplitude_h = new TH1D("cluster_amplitude_h", "cluster_amplitude", 100, 0, 40);
+   TH1D * cluster_L03C_pixelcount_h = new TH1D("cluster_L03C_pixelcount_h", "cluster_L03C_pixelcount", 100, 0, 10);
+   TH1D * cluster_L03C_X_h = new TH1D("cluster_L03C_X_h", "cluster_L03C_X", 100, -50, 50);
+   TH1D * cluster_L03C_Y_h = new TH1D("cluster_L03C_Y_h", "cluster_L03C_Y", 100,-50, 50);
+   TH1D * cluster_L03C_R_h = new TH1D("cluster_L03C_R_h", "cluster_L03C_R", 100, 0,60);
+   TH1D * cluster_L03C_Time_h = new TH1D("cluster_L03C_Time_h", "cluster_L03C_Time", 100, 0,20);
+   TProfile *delTvsCh = new TProfile("delTvsCh", "delTvsCh; ChannelID; #Deltat", 32, 0, 32, -5, 5);
   
   
    for(int i = 0; i < ltree->GetEntries(); i++){
       ltree->GetEntry(i);
-     
+     //std::cout<<cluster_L03C_amplitude<<"\n";
+      cluster_amplitude_h->Fill(cluster_L03C_amplitude);
+      cluster_L03C_pixelcount_h->Fill(cluster_L03C_pixelcount);
+      cluster_L03C_X_h->Fill(cluster_L03C_X);
+      cluster_L03C_Y_h->Fill(cluster_L03C_Y);
+      cluster_L03C_R_h->Fill(cluster_L03C_R);
+      cluster_L03C_Time_h->Fill(cluster_L03C_Time);
+      
       for(int k =0; k<digitizer_number; ++k){
          for(int l =0 ; l<channel_number; ++l){
+            
             Double_t amp = lappd_aa[k][l];
+            Double_t tip[11][32];
+            tip[k][l] = lappd_aa[k][l]>lappd_aa[k][l+1]? lappd_aa[k][l]:lappd_aa[k][l+1];
             
             amp_time_lappd[k][l]->Fill(lappd_tt[k][l]/1000,lappd_aa[k][l], 1);
             Double_t diff = lappd_aa[k][l]-lappd_aa[k][l-1];
-            Double_t tdiff = lappd_tt[k][l]-lappd_tt[k][l-1];
+            Double_t tgt_diff = lappd_tt[k][l];
+            if(lappd_aa[k][l]-lappd_aa[k][l-1]/lappd_aa[k][l] > 10) continue;
+            //cout<<" clau"<<lappd_aa[k][l]-lappd_aa[k][l-1]/lappd_aa[k][l]<<"\n";
+            Double_t tdiff = (lappd_aa[k][l]-lappd_aa[k][l-1]/lappd_aa[k][l])*(lappd_tt[k][l]/sqrt(5*10E6*lappd_tt[k][l]));
+            //std::cout<<tdiff<<"\n";
             amp_diff_channel[l]->Fill(diff);
-            time_r[l]->Fill(tdiff);
+            time_r[l]->Fill(tgt_diff/1000);
+            delTvsCh->Fill(l, tdiff, 1);
             //h2->SetBinContent(k, l, amp);
          }
       }
@@ -172,7 +217,18 @@ void Time_Resolution(){
     TCanvas *c2 = new TCanvas();
    for(unsigned l =0 ; l<channel_number; ++l){
       time_r[l]->Draw();
-      c2->SaveAs(Form("/Users/md/Documents/Phenix_HF_Analysis/lappd_event/time/time_diff_%d.png", l));
+     c2->SaveAs(Form("/Users/md/Documents/Phenix_HF_Analysis/lappd_event/time/time_diff_%d.png", l));
    }
+   TCanvas * c = new TCanvas();
+   c->Divide(3,2);
+   c->cd(1);cluster_amplitude_h->Draw();
+   c->cd(2);cluster_L03C_pixelcount_h->Draw();
+   c->cd(3);cluster_L03C_X_h->Draw();
+   c->cd(4);cluster_L03C_Y_h->Draw();
+   c->cd(5);cluster_L03C_R_h->Draw();
+   c->cd(6);cluster_L03C_Time_h->Draw();
    
+   TCanvas *td = new TCanvas("td", "td", 600, 600);
+   delTvsCh->Draw();
+
 }
