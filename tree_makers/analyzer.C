@@ -45,7 +45,7 @@ using  namespace std;
 #define large_val = 100000000
 
 
-void analyzer(string cadidatefile, string output){
+void analyzer(string candidatefile, string output){
    
    //definition call;
    
@@ -61,7 +61,7 @@ void analyzer(string cadidatefile, string output){
    float polblue, polyellow;
    int y_pattern[120], b_pattern[120], cand_run, xshift;
    Long64_t scaler[120];
-   
+   float polyellow_stat, polblue_stat;   
    
    mutree_spin->SetBranchAddress("runnumber",&run_spin);
    mutree_spin->SetBranchAddress("polblue",&polblue);
@@ -70,7 +70,8 @@ void analyzer(string cadidatefile, string output){
    mutree_spin->SetBranchAddress("patternblue",&b_pattern[0]);
    mutree_spin->SetBranchAddress("patternyellow",&y_pattern[0]);
    mutree_spin->SetBranchAddress("xingshift",&xshift);
-   
+   mutree_spin->SetBranchAddress("polyellow_stat",&polyellow_stat);
+   mutree_spin->SetBranchAddress("polblue_stat",&polblue_stat);
    
    
    
@@ -86,20 +87,21 @@ void analyzer(string cadidatefile, string output){
    TH1F *mupt_h = new TH1F("mupt_h", "mupt_h; p_{T} (GeV); Number of events", 50, 0, 10);//pt_bins
    TH1F *phi_h = new TH1F("phi_h", "phi_h; #phi (rad); Number of events", 100, -TMath::Pi(), TMath::Pi());//pt_bins
    
-   TFile *mufile_cadidate = new TFile((cadidatefile).c_str());
-   TTree *mutree_cadidate = (TTree*)mufile_cadidate->Get("analysis");
-   int n_entries_cadidate = mutree_cadidate->GetEntries();
-   std::cout<<" Number of entries for the moment : \t"<< n_entries_cadidate <<"\n";
+   TFile *mufile_candidate = new TFile((candidatefile).c_str());
+   TTree *mutree_candidate = (TTree*)mufile_candidate->Get("analysis");
+   int n_entries_candidate = mutree_candidate->GetEntries();
+   std::cout<<" Number of entries for the moment : \t"<< n_entries_candidate <<"\n";
    TLorentzVector *mu_4vec = new TLorentzVector();
    float px, py, pz, pt, pT_cut_val, rapidity, energy, mass, phi, x0, y0, z0, vtx_x, vtx_y, vtx_z, x_sta1, y_sta1, idx, idy;
    float trchi2, idchi2, dg0, ddg0, phi_trk;
    float  costheta_vtx, theta_vtx, costheta_mutr, theta_mutr, delta_theta, scaled_dtheta;
-   float r_ref, chi2_trk_vtx,  sq_norm_z;
+   float r_ref, chi2_trk_vtx,  sq_norm_z, bbcz, bbczerr;
    float px_sta1, py_sta1, pz_sta1, x_sta3, y_sta3, pz_max;
    int trhits, idhits, eventYield, clock, run_candidate, lastgap;
    float ctheta, pdtheta, dangle;
    bool muoncharge;
    int clock_candidate;
+   
    static const Int_t n = 100000000;
    float pz_array[n];
    pz_max = pz_array[n];
@@ -112,54 +114,59 @@ void analyzer(string cadidatefile, string output){
    TVector3 vec_vtx_z;
    
    
-   mutree_cadidate->SetBranchAddress("smpx",&px);
-   mutree_cadidate->SetBranchAddress("smpy",&py);
-   mutree_cadidate->SetBranchAddress("smpz",&pz);
-   mutree_cadidate->SetBranchAddress("smrapidity",&rapidity);
-   mutree_cadidate->SetBranchAddress("smtrchi2",&trchi2);
-   mutree_cadidate->SetBranchAddress("smidchi2",&idchi2);
-   mutree_cadidate->SetBranchAddress("smtrhits",&trhits);
-   mutree_cadidate->SetBranchAddress("smidhits",&idhits);
-   mutree_cadidate->SetBranchAddress("smddg0",&ddg0);
-   mutree_cadidate->SetBranchAddress("smdg0",&dg0);
-   mutree_cadidate->SetBranchAddress("smx0",&x0);
-   mutree_cadidate->SetBranchAddress("smy0",&y0);
-   mutree_cadidate->SetBranchAddress("smz0",&z0);
-   mutree_cadidate->SetBranchAddress("evtvtxx",&vtx_x);
-   mutree_cadidate->SetBranchAddress("evtvtxy",&vtx_y);
-   mutree_cadidate->SetBranchAddress("evtvtxz",&vtx_z);
-   mutree_cadidate->SetBranchAddress("smxst1",&x_sta1);
-   mutree_cadidate->SetBranchAddress("smyst1",&y_sta1);
-   mutree_cadidate->SetBranchAddress("smidx",&idx);
-   mutree_cadidate->SetBranchAddress("smidy",&idy);
-   mutree_cadidate->SetBranchAddress("smcharge",&muoncharge);
-   mutree_cadidate->SetBranchAddress("eventnumber",&eventYield);
-   mutree_cadidate->SetBranchAddress("lvl1_clock_cross",&clock);
-   mutree_cadidate->SetBranchAddress("smst1px",&px_sta1);
-   mutree_cadidate->SetBranchAddress("smst1py",&py_sta1);
-   mutree_cadidate->SetBranchAddress("smst1pz",&pz_sta1);
-   mutree_cadidate->SetBranchAddress("smxst3",&x_sta3);
-   mutree_cadidate->SetBranchAddress("runnumber",&run_candidate);
-   mutree_cadidate->SetBranchAddress("smlastgap",&lastgap);
-   mutree_cadidate->SetBranchAddress("lvl1_clock_cross",&clock_candidate);
-   
+   mutree_candidate->SetBranchAddress("smpx",&px);
+   mutree_candidate->SetBranchAddress("smpy",&py);
+   mutree_candidate->SetBranchAddress("smpz",&pz);
+   mutree_candidate->SetBranchAddress("smrapidity",&rapidity);
+   mutree_candidate->SetBranchAddress("smtrchi2",&trchi2);
+   mutree_candidate->SetBranchAddress("smidchi2",&idchi2);
+   mutree_candidate->SetBranchAddress("smtrhits",&trhits);
+   mutree_candidate->SetBranchAddress("smidhits",&idhits);
+   mutree_candidate->SetBranchAddress("smddg0",&ddg0);
+   mutree_candidate->SetBranchAddress("smdg0",&dg0);
+   mutree_candidate->SetBranchAddress("smx0",&x0);
+   mutree_candidate->SetBranchAddress("smy0",&y0);
+   mutree_candidate->SetBranchAddress("smz0",&z0);
+   mutree_candidate->SetBranchAddress("evtvtxx",&vtx_x);
+   mutree_candidate->SetBranchAddress("evtvtxy",&vtx_y);
+   mutree_candidate->SetBranchAddress("evtvtxz",&vtx_z);
+   mutree_candidate->SetBranchAddress("smxst1",&x_sta1);
+   mutree_candidate->SetBranchAddress("smyst1",&y_sta1);
+   mutree_candidate->SetBranchAddress("smidx",&idx);
+   mutree_candidate->SetBranchAddress("smidy",&idy);
+   mutree_candidate->SetBranchAddress("smcharge",&muoncharge);
+   mutree_candidate->SetBranchAddress("eventnumber",&eventYield);
+   mutree_candidate->SetBranchAddress("lvl1_clock_cross",&clock);
+   mutree_candidate->SetBranchAddress("smst1px",&px_sta1);
+   mutree_candidate->SetBranchAddress("smst1py",&py_sta1);
+   mutree_candidate->SetBranchAddress("smst1pz",&pz_sta1);
+   mutree_candidate->SetBranchAddress("smxst3",&x_sta3);
+   mutree_candidate->SetBranchAddress("runnumber",&run_candidate);
+   mutree_candidate->SetBranchAddress("smlastgap",&lastgap);
+   mutree_candidate->SetBranchAddress("lvl1_clock_cross",&clock_candidate);
+   mutree_candidate->SetBranchAddress("bbcz",&bbcz);
+   mutree_candidate->SetBranchAddress("bbczerr",&bbczerr);
+
    //================================================================== output tree
    float pz_var =0, rapidity_var=0, pt_var=0, phi_var=0, ddg0_var=0, dg0_var=0, pdtheta_var=0, idchi2_var=0, trchi2_var=0, x_F_var=0;
-   int muoncharge_var, trhits_var, idhits_var, lastgap_var, run_candidate_var, run_spin_var;
-   int bluebeam_spin_pattern, yellowbeam_spin_pattern;
-   float bluebeam_pol_var, yellowbeam_pol_var;
-   float px_var =0, r_ref_var =0, E_var = 0; 
-   
+   int muoncharge_var=0, trhits_var=0, idhits_var=0, lastgap_var=0, run_candidate_var=0, run_spin_var=0;
+   int bluebeam_spin_pattern=0, yellowbeam_spin_pattern=0;
+   float bluebeam_pol_var=0, yellowbeam_pol_var=0;
+   float bluebeam_pol_error_var=0; yellowbeam_pol_error_var=0;
+
+   float px_var =0, r_ref_var =0, E_var = 0, bbcz_var=0, bbczerr_var=0; 
    bool pt_bin1 = false;
    bool pt_bin2 = false;
    bool pt_bin3 = false;
    bool pt_bin4 = false;
    bool pt_bin5 = false;
    bool pt_bin6 = false;
-   
+   bool pt_bin7 = false;
+
    bool south_cut = false;
    bool north_cut = false;
-   
+   bool south_cut_GTwoThr = false;
+   bool north_cut_GTwoThr = false;
   
    float ptSpinUp_SouthArm_bin1, ptSpinUp_SouthArm_bin2, ptSpinUp_SouthArm_bin3, ptSpinUp_SouthArm_bin4, ptSpinUp_SouthArm_bin5, ptSpinUp_SouthArm_bin6;
    float ptSpinUp_NorthArm_bin1, ptSpinUp_NorthArm_bin2, ptSpinUp_NorthArm_bin3, ptSpinUp_NorthArm_bin4, ptSpinUp_NorthArm_bin5, ptSpinUp_NorthArm_bin6;
@@ -190,23 +197,28 @@ void analyzer(string cadidatefile, string output){
    fit->Branch("pt_bin4",&pt_bin4,"pt_bin4/O");
    fit->Branch("pt_bin5",&pt_bin5,"pt_bin5/O");
    fit->Branch("pt_bin6",&pt_bin6,"pt_bin6/O");
+   fit->Branch("pt_bin7",&pt_bin7,"pt_bin7/O");
    fit->Branch("south_cut",&south_cut,"south_cut/O");
    fit->Branch("north_cut",&north_cut,"north_cut/O");
    fit->Branch("bluebeam_spin_pattern",&bluebeam_spin_pattern,"bluebeam_spin_pattern/I");
    fit->Branch("yellowbeam_spin_pattern",&yellowbeam_spin_pattern,"yellowbeam_spin_pattern/I");
    fit->Branch("bluebeam_pol_var",&bluebeam_pol_var,"bluebeam_pol_var/F");
    fit->Branch("yellowbeam_pol_var",&yellowbeam_pol_var,"yellowbeam_pol_var/F");
+   fit->Branch("bluebeam_pol_error_var",&bluebeam_pol_error_var,"bluebeam_pol_error_var/F");
+   fit->Branch("yellowbeam_pol_error_var",&yellowbeam_pol_error_var,"yellowbeam_pol_error_var/F");
    fit->Branch("run_candidate_var",&run_candidate_var,"run_candidate_var/I");
    fit->Branch("run_spin_var",&run_spin_var,"run_spin_var/I");
    fit->Branch("E_var", &E_var, "E_var/F");
    fit->Branch("r_ref_var", &r_ref_var, "r_ref_var/F");
-   
-  
-   
-   for (int ientry = 0; ientry<n_entries_cadidate ; ++ientry){//n_entries_cadidate
+   fit->Branch("bbcz_var", &bbcz_var, "bbcz_var/F");
+   fit->Branch("bbczerr_var", &bbczerr_var, "bbczerr_var/F");
+   fit->Branch("south_cut_GTwoThr",&south_cut_GTwoThr,"south_cut_GTwoThr/O");
+   fit->Branch("north_cut_GTwoThr",&north_cut_GTwoThr,"north_cut_GTwoThr/O");
+
+   for (int ientry = 0; ientry<n_entries_candidate ; ++ientry){//n_entries_cadidate
       
-      mutree_cadidate->GetEntry(ientry);
-      if (ientry%10000==0) cout << "processing event " << ientry << "/" << n_entries_cadidate<<"\n";
+      mutree_candidate->GetEntry(ientry);
+      if (ientry%10000==0) cout << "processing event " << ientry << "/" << n_entries_candidate<<"\n";
       run_candidate_var = run_candidate;
       
 #if 1
@@ -254,9 +266,15 @@ void analyzer(string cadidatefile, string output){
       pt_bin4 = (pt > 2.50 && pt < 3.00);
       pt_bin5 = (pt > 3.00 && pt < 3.50);
       pt_bin6 = (pt > 3.50 && pt < 5.00);
-      south_cut = ( trhits > 12 && trchi2 < 10 && idhits > 6 && idchi2 < 5 && ddg0 < 8 && dg0 < 20 && (fabs(rapidity)>1.2 || fabs(rapidity)< 2.2) && pdtheta < 0.2);
-      north_cut = ( trhits > 12 && trchi2 < 10 && idhits > 6 && idchi2 < 5 && ddg0 < 8 && dg0 < 10 && (fabs(rapidity)>1.2 || fabs(rapidity)< 2.2) && pdtheta < 0.2);
-      
+      pt_bin7 = (pt > 5.00 && pt < 7.00);
+
+      south_cut = ( trhits > 10 && trchi2 < 15 && idhits > 6 && idchi2 < 6 && ddg0 < 8 && dg0 < 20 && (fabs(rapidity)>1.2 || fabs(rapidity)< 2.2) && pdtheta < 0.25);
+      north_cut = ( trhits > 10 && trchi2 < 20 && idhits > 6 && idchi2 < 6 && ddg0 < 8 && dg0 < 10 && (fabs(rapidity)>1.2 || fabs(rapidity)< 2.2) && pdtheta < 0.25);
+      south_cut_GTwoThr = (trhits > 10 && trchi2 < 15 && idhits > 6 && idchi2 < 6 && ddg0 < 8 && dg0 < 20 && (fabs(rapidity)>1.4 || fabs(rapidity)< 2.2) && pdtheta < 0.4);
+      north_cut_GTwoThr = ( trhits > 10 && trchi2 < 20 && idhits > 6 && idchi2 < 6 && ddg0 < 8 && dg0 < 10 && (fabs(rapidity)>1.4 || fabs(rapidity)< 2.2) && pdtheta < 0.4);
+
+
+
       pz_var = pz;
       px_var = px;
       pt_var = pt;
@@ -271,7 +289,8 @@ void analyzer(string cadidatefile, string output){
       trhits_var = trhits;
       muoncharge_var = muoncharge;
       lastgap_var = lastgap;
-      
+      bbcz_var = bbcz;
+      bbczerr_var = bbczerr;
       
       
       
@@ -285,7 +304,8 @@ void analyzer(string cadidatefile, string output){
          yellowbeam_spin_pattern = y_pattern[shifted_clock]*(-1);
          bluebeam_pol_var = polblue;
          yellowbeam_pol_var = polyellow;
-            
+         yellowbeam_pol_error_var = polyellow_stat;
+         bluebeam_pol_error_var = polblue_stat;
        
       }
       
