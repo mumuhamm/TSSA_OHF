@@ -127,25 +127,20 @@ void plot_comparison(TH1F * hist1 , TH1F * hist2, string histname){
 
 void statcheck(){
    
-<<<<<<< HEAD
-   TFile * sfile= new TFile("/Users/md/Documents/Phenix_HF_Analysis/runcuts_Run15pp200_COMBINED_DATA_TIGHT.root");
-=======
+
 
    TFile * sfile= new TFile("/gpfs/mnt/gpfs02/phenix/spin/spin1/phnxsp01/alibordi/HF_Analysis/samples/runcuts_Run15pp200_COMBINED_DATA_TIGHT.root");
->>>>>>> 8c6fb5b9b4d3df5ecd8a3a9a95b18da9786d23d3
+
    TH1F *pt_northpositive_h = (TH1F*)sfile->Get("n_varbin_AN_pT_arm1_gap4_chg1");
    TH1F *pt_northnegative_h = (TH1F*)sfile->Get("n_varbin_AN_pT_arm1_gap4_chg0");
    TH1F *pt_southpositive_h = (TH1F*)sfile->Get("n_varbin_AN_pT_arm0_gap4_chg1");
    TH1F *pt_southnegative_h = (TH1F*)sfile->Get("n_varbin_AN_pT_arm0_gap4_chg0");
-<<<<<<< HEAD
-   
-   float pt_bin[10] = {1.25, 1.50, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 7.0, 10.0};
-=======
+
 
 
    float pt_bin[10] = {1.25, 1.50, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 7.0, 10.0};
 
->>>>>>> 8c6fb5b9b4d3df5ecd8a3a9a95b18da9786d23d3
+
    TH1F *xF_h_n_mp = new TH1F("xF_h_n_mp", "xF_h; x_{F}(=p_{z}/p_z^{max}) (a.u.); Entries", 1000, -0.1, 0.1);
    TH1F *pdtheta_h_n_mp = new TH1F("pdtheta_h_n_mp", "pdtheta_h; p#delta#theta (rad GeV/c); Entries", 100, 0.0, 0.4);
    TH1F *ddg0_h_n_mp = new TH1F("ddg0_h_n_mp", "ddg0_h; DDG0 (cm); Entries", 100, 0, 20);
@@ -315,12 +310,9 @@ void statcheck(){
    std::cout<<"south_positive : our file / sanghoons file ="<< pt_h_s_mp->GetEntries()/pt_southpositive_h->GetEntries()<<"\n";
    std::cout<<"south_negative : our file / sanghoons file ="<< pt_h_s_mn->GetEntries()/pt_southnegative_h->GetEntries()<<"\n";
    
-<<<<<<< HEAD
-   /*plot_north(xF_h_n_mp , xF_h_n_mn);
-=======
+
    
 /*   plot_north(xF_h_n_mp , xF_h_n_mn);
->>>>>>> 8c6fb5b9b4d3df5ecd8a3a9a95b18da9786d23d3
    plot_north(pdtheta_h_n_mp , pdtheta_h_n_mn);
    plot_north(ddg0_h_n_mp , ddg0_h_n_mn);
    plot_north(dg0_h_n_mp , dg0_h_n_mn);
@@ -332,7 +324,6 @@ void statcheck(){
    plot_south(ddg0_h_s_mp, ddg0_h_s_mn);
    plot_south(dg0_h_s_mp, dg0_h_s_mn);
    plot_south(phi_h_s_mp, phi_h_s_mn);
-<<<<<<< HEAD
    plot_south(pt_h_s_mp, pt_h_s_mn);*/
    
    TCanvas *c = new TCanvas();
@@ -344,49 +335,21 @@ void statcheck(){
    pt_northpositive_h->Draw("HIST");
    c->Update();
    
+  
+  
    TCanvas *c1 = new TCanvas();
-=======
-   plot_south(pt_h_s_mp, pt_h_s_mn);
-  */
-   
-
-   std::cout<<" ####    ####     ############ "<<"\n";
-   std::cout<<" ####    ####     ############ "<<"\n";
-   std::cout<<" ####    ####     ####         "<<"\n";
-   std::cout<<" ############     ########     "<<"\n";
-   std::cout<<" ############     ########     "<<"\n";
-   std::cout<<" ####    ####     ####         "<<"\n";
-   std::cout<<" ####    ####     ####         "<<"\n";
-   std::cout<<" ####    ####     ####         "<<"\n";
-   std::cout<<"----------------------------------------------"<<"\n";
-   std::cout<<" ratio check "<<"\n";
-   
-   std::cout<<"north_positive : our file / sanghoons file ="<< pt_h_n_mp->GetEntries()/pt_northpositive_h->GetEntries()<<"\n";
-   std::cout<<"north_negative : our file / sanghoons file ="<< pt_h_n_mn->GetEntries()/pt_northnegative_h->GetEntries()<<"\n";
-   std::cout<<"south_positive : our file / sanghoons file ="<< pt_h_s_mp->GetEntries()/pt_southpositive_h->GetEntries()<<"\n";
-   std::cout<<"south_negative : our file / sanghoons file ="<< pt_h_s_mn->GetEntries()/pt_southnegative_h->GetEntries()<<"\n";
-
-   TCanvas *c = new TCanvas();
->>>>>>> 8c6fb5b9b4d3df5ecd8a3a9a95b18da9786d23d3
    pt_h_n_mp->SetLineColor(kRed);
    pt_h_n_mp->SetFillColor(kRed);
    pt_h_n_mp->SetFillStyle(3244);
    pt_h_n_mp->GetXaxis()->SetTitle("p_{T} (GeV)");
    pt_h_n_mp->GetYaxis()->SetTitle("Events");
    pt_h_n_mp->Draw("HIST");
-<<<<<<< HEAD
    c1->Update();
    
-   string north_positive, north_negative, south_positive, south_negative;
-   plot_comparison(pt_h_n_mp,pt_northpositive_h, "north_positive" );
-   plot_comparison(pt_h_n_mn,pt_northnegative_h, "north_negative" );
-   plot_comparison(pt_h_s_mp,pt_southpositive_h, "south_positive" );
-   plot_comparison(pt_h_s_mn,pt_southnegative_h, "south_negative" );
    
    
-=======
-   c->Update();
->>>>>>> 8c6fb5b9b4d3df5ecd8a3a9a95b18da9786d23d3
+   
+
    
    plot_comparison(pt_h_n_mp,pt_northpositive_h, "north_positive" );
    plot_comparison(pt_h_n_mn,pt_northnegative_h, "north_negative" );
