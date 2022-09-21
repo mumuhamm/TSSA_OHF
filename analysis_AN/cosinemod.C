@@ -19,6 +19,12 @@
 
 using namespace std;
 
+Double_t cfunc(Double_t *x, Double_t *par){
+   Double_t func;
+   Double_t xx = x[0];
+   func = par[0]*cos(xx);
+   return func;
+}
 
 
 
@@ -31,6 +37,9 @@ void cosinemod(){
    
    Float_t pt_diff[8]={1.375,1.75,2.25,2.75,3.25,4,6, 8.5};
    Float_t pt_diffErr[8] ={0};
+   Float_t phi_diff[12] ={-(TMath::Pi()-TMath::Pi()/12),-(TMath::Pi()*5/6-TMath::Pi()/12), -(TMath::Pi()*2/3-TMath::Pi()/12),-(TMath::Pi()/2-TMath::Pi()/12), -(TMath::Pi()/3-TMath::Pi()/12), -(TMath::Pi()/6-TMath::Pi()/12),  (0.0+TMath::Pi()/12), (TMath::Pi()/6+TMath::Pi()/12), (TMath::Pi()/3+TMath::Pi()/12), (TMath::Pi()/2+TMath::Pi()/12), (TMath::Pi()*2/3+TMath::Pi()/12), (TMath::Pi()*5/6+TMath::Pi()/12)} ;
+   Float_t phi_diffErr[12] ={0};
+   
    Float_t N;
    Float_t sinPhi;
    Float_t cosPhi;
@@ -52,22 +61,25 @@ void cosinemod(){
    Float_t epsilon_NO_YB_NMError[8] = {0};
    
    
-   Float_t epsilon_PHI[12] = {0};
-   Float_t epsilon_PHIError[12] = {0};
+   Float_t epsilonPHI_SA_YB_PM[12] = {0};
+   Float_t epsilonPHI_SA_YB_PMError[12] = {0};
    
-   TH1F * run_h = new TH1F("run_h","run_h", 10, 400000, 440000);
+   Int_t run_value;
+   TH1F * run_h = new TH1F("run_h","run_h", 8, 420000, 433000);
+   TProfile *runxasymy_prof[8];
+   for(Int_t i=0; i<6; ++i){runxasymy_prof[i]= new TProfile(Form("asym_in_run%d",i), Form("asym_in_run%d",i), 8,420000, 440000, -1, 1 );}
    TH1F * cosmod_h[6];
    for(Int_t i=0; i<6; ++i){ cosmod_h[i]= new TH1F(Form("myhist%d",i), Form("myhist%d",i), 100, -0.2, 0.2);}
    
-   Float_t PHI_SA_YB_PM_Event_R_UP[8][12] = {0};
-   Float_t PHI_SA_YB_PM_Event_L_UP[8][12]= {0};
-   Float_t PHI_SA_YB_PM_Event_R_DOWN[8][12]= {0};
-   Float_t PHI_SA_YB_PM_Event_L_DOWN[8][12]= {0};
+   Float_t PHI_SA_YB_PM_Event_R_UP[6][12] = {0};
+   Float_t PHI_SA_YB_PM_Event_L_UP[6][12]= {0};
+   Float_t PHI_SA_YB_PM_Event_R_DOWN[6][12]= {0};
+   Float_t PHI_SA_YB_PM_Event_L_DOWN[6][12]= {0};
    
-   Float_t PHI_SA_YB_NM_Event_R_UP[8][12] = {0};
-   Float_t PHI_SA_YB_NM_Event_L_UP[8][12] = {0};
-   Float_t PHI_SA_YB_NM_Event_R_DOWN[8][12] = {0};
-   Float_t PHI_SA_YB_NM_Event_L_DOWN[8][12] = {0};
+   Float_t PHI_SA_YB_NM_Event_R_UP[6][12] = {0};
+   Float_t PHI_SA_YB_NM_Event_L_UP[6][12] = {0};
+   Float_t PHI_SA_YB_NM_Event_R_DOWN[6][12] = {0};
+   Float_t PHI_SA_YB_NM_Event_L_DOWN[6][12] = {0};
    
    
    
@@ -118,9 +130,11 @@ void cosinemod(){
    Float_t PHIBIN[13] = {-TMath::Pi(), -TMath::Pi()*5/6, -TMath::Pi()*2/3,-TMath::Pi()/2, -TMath::Pi()/3, -TMath::Pi()/6, 0, TMath::Pi()/6,TMath::Pi()/3, TMath::Pi()/2, TMath::Pi()*2/3,TMath::Pi()*5/6, TMath::Pi()};
    Float_t PTBIN[9] = {1.25, 1.5, 2.0, 2.5, 3.0, 3.5, 5, 7, 10};
    Int_t  binnumpt = sizeof(PTBIN)/sizeof(Float_t) - 1;
+   Int_t  binnumphi = sizeof(PHIBIN)/sizeof(Float_t) - 1;
    TH1F *PT_H = new TH1F("PT_H", "PT_H", 8, PTBIN);
    TH1F *AN_PT_H = new TH1F("AN_PT_H", "AN_PT_H", 8, PTBIN);
    TH1F * PHI_H = new TH1F("PHI_H", "PHI_H", 12, PHIBIN);
+   
    TFile *fIn1 = new TFile("/Users/md/Documents/Phenix_HF_Analysis/fitFour.root");
    if (!fIn1){return;}
    TTree* smu = (TTree*)fIn1->Get("fit");
@@ -136,7 +150,7 @@ void cosinemod(){
    bool pt_bin4;
    bool pt_bin5;
    bool pt_bin6;
-   
+   bool pt_bin_iterator[6]={pt_bin1, pt_bin2, pt_bin3, pt_bin4, pt_bin5, pt_bin6};
    bool south_cut;
    bool north_cut;
    Float_t polarization_yellow;
@@ -178,14 +192,18 @@ void cosinemod(){
    for (Int_t i=0;i<n_entries;i++){
       smu->GetEntry(i);
    if(run_candidate_var != run_spin_var)continue;
-      
+      run_h->Fill(run_candidate_var);
+      run_value = run_candidate_var;
       polarization_yellow = yellowbeam_pol_var;
       polarization_blue = bluebeam_pol_var;
       sinPhi = sin(phi_var);
       cosPhi = cos(phi_var);
       PHI_H->Fill(phi_var);
       PT_H->Fill(pt_var);
+      
+      
       //std::cout<<PHI_H->GetBinContent(1)<<"\n";
+      
       
   //-------------------------------------------- Studies in x_F < 0 :South : Yellow , North : Blue -------------Run by run study & integration : Calculation on Phi
      // r_ref_var < 125
@@ -194,46 +212,24 @@ void cosinemod(){
          //South & Yellow beam
          
          if(south_cut &&  r_ref_var < 180   && muoncharge_var ==1){
-            for(Int_t k =0; k< PT_H->GetNbinsX(); ++k){
+            for(Int_t k =1; k <= PT_H->GetNbinsX(); ++k){
                if (yellowbeam_spin_pattern == 1){
                   
                   if (px_var < 0)SA_YB_PM_Event_L_UP[k] = PT_H->GetBinContent(k);
                   if (px_var > 0)SA_YB_PM_Event_R_UP[k] = PT_H->GetBinContent(k);
                }
-                  
-                  
                if (yellowbeam_spin_pattern == -1){
                   
                   if (px_var < 0)SA_YB_PM_Event_L_DOWN[k] = PT_H->GetBinContent(k);
                   if (px_var > 0)SA_YB_PM_Event_R_DOWN[k] = PT_H->GetBinContent(k);
                }
-              
+             //std::cout<<"index :--  "<<k<<"\t bin content:--  "<<SA_YB_PM_Event_L_UP[k]<<"\n";
             }
          }
          
-         
-         /*if(south_cut && r_ref_var < 180  && px_var < 0 && muoncharge_var ==1){
-            
-               for(Int_t j=0;j<PHI_H->GetNbinsX(); ++j){
-                  if( yellowbeam_spin_pattern == 1)PHI_SA_YB_PM_Event_L_UP[k][j] = PHI_H->GetBinContent(j);
-                  if( yellowbeam_spin_pattern == -1)PHI_SA_YB_PM_Event_L_DOWN[k][j] = PHI_H->GetBinContent(j);
-                 
-               }
-               for(Int_t j=0;j<PHI_H->GetNbinsX(); ++j){
-                  if (yellowbeam_spin_pattern == 1)PHI_SA_YB_PM_Event_R_UP[k][j] = PHI_H->GetBinContent(j);
-                  if (yellowbeam_spin_pattern == -1)PHI_SA_YB_PM_Event_R_DOWN[k][j] = PHI_H->GetBinContent(j);
-                  
-                     // std::cout<<" lets get printout the bin wise events in case phi binning : k & j "<<k<<"\t:&:\t"<<j<<"\t"<<PHI_SA_YB_PM_Event_R_UP[k][j]<<"\n";
-               }
-            }*/
-         
-         
-         
-         
-         
-         
+ 
          if(south_cut &&  r_ref_var < 180  && muoncharge_var ==0){
-            for(Int_t k =0; k< PT_H->GetNbinsX(); ++k){
+            for(Int_t k =1; k <= PT_H->GetNbinsX(); ++k){
                if(yellowbeam_spin_pattern == 1){
                   
                   if (px_var < 0)SA_YB_NM_Event_L_UP[k] = PT_H->GetBinContent(k);
@@ -248,14 +244,68 @@ void cosinemod(){
             }
          }
          
-        
+         
+         if(south_cut && r_ref_var < 180 && muoncharge_var ==1){
+          
+          for(Int_t j=1;j<=PHI_H->GetNbinsX(); ++j){
+             if( yellowbeam_spin_pattern == 1){
+                if (px_var < 0){
+                   if(pt_bin1)PHI_SA_YB_PM_Event_L_UP[0][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin2)PHI_SA_YB_PM_Event_L_UP[1][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin3)PHI_SA_YB_PM_Event_L_UP[2][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin4)PHI_SA_YB_PM_Event_L_UP[3][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin5)PHI_SA_YB_PM_Event_L_UP[4][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin6)PHI_SA_YB_PM_Event_L_UP[5][j] = PHI_H->GetBinContent(j);
+                }
+                if (px_var > 0){
+                   if(pt_bin1)PHI_SA_YB_PM_Event_R_UP[0][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin2)PHI_SA_YB_PM_Event_R_UP[1][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin3)PHI_SA_YB_PM_Event_R_UP[2][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin4)PHI_SA_YB_PM_Event_R_UP[3][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin5)PHI_SA_YB_PM_Event_R_UP[4][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin6)PHI_SA_YB_PM_Event_R_UP[5][j] = PHI_H->GetBinContent(j);
+                   
+                }
+                   
+             }
+             if( yellowbeam_spin_pattern == -1){
+                if(px_var < 0){
+                   if(pt_bin1)PHI_SA_YB_PM_Event_L_DOWN[0][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin2)PHI_SA_YB_PM_Event_L_DOWN[1][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin3)PHI_SA_YB_PM_Event_L_DOWN[2][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin4)PHI_SA_YB_PM_Event_L_DOWN[3][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin5)PHI_SA_YB_PM_Event_L_DOWN[4][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin6)PHI_SA_YB_PM_Event_L_DOWN[5][j] = PHI_H->GetBinContent(j);
+                }
+                if (px_var > 0){
+                   if(pt_bin1)PHI_SA_YB_PM_Event_R_DOWN[0][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin2)PHI_SA_YB_PM_Event_R_DOWN[1][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin3)PHI_SA_YB_PM_Event_R_DOWN[2][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin4)PHI_SA_YB_PM_Event_R_DOWN[3][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin5)PHI_SA_YB_PM_Event_R_DOWN[4][j] = PHI_H->GetBinContent(j);
+                   if(pt_bin6)PHI_SA_YB_PM_Event_R_DOWN[5][j] = PHI_H->GetBinContent(j);
+                }
+             }
+             //std::cout<<"compare 1st pt bin\t"<<PHI_SA_YB_PM_Event_L_UP[0][j]<<"\t"<<PHI_SA_YB_PM_Event_R_UP[0][j]<<"\t"<<PHI_SA_YB_PM_Event_L_DOWN[0][j]<<"\t"<<PHI_SA_YB_PM_Event_R_DOWN[0][j]<<"\n";
+             //std::cout<<"compare 5th pt bin\t"<<PHI_SA_YB_PM_Event_L_UP[5][j]<<"\t"<<PHI_SA_YB_PM_Event_R_UP[5][j]<<"\t"<<PHI_SA_YB_PM_Event_L_DOWN[5][j]<<"\t"<<PHI_SA_YB_PM_Event_R_DOWN[5][j]<<"\n";
+             
+             //std::cout<<" compare ptbin1 nad 5 \t\t"<<PHI_SA_YB_PM_Event_L_UP[0][j]<<"\t"<<PHI_SA_YB_PM_Event_L_UP[5][j]<<"\n";
+     }
+            
+   }
+         
+         
+         
+         
+         
+         
         
          
         
          //North Blue beam
          
          if(north_cut && r_ref_var < 180  && muoncharge_var ==1 ){
-            for(Int_t k =0; k< PT_H->GetNbinsX(); ++k){
+            for(Int_t k =1; k <= PT_H->GetNbinsX(); ++k){
                if(bluebeam_spin_pattern == 1){
                   
                   if (px_var < 0)NO_BB_PM_Event_L_UP[k] = PT_H->GetBinContent(k);
@@ -272,7 +322,7 @@ void cosinemod(){
         
          
          if(north_cut && r_ref_var < 180  && muoncharge_var ==0 ){
-            for(Int_t k =0; k< PT_H->GetNbinsX(); ++k){
+            for(Int_t k =1; k <= PT_H->GetNbinsX(); ++k){
                if( bluebeam_spin_pattern == 1){
                   
                   if (px_var < 0)NO_BB_NM_Event_L_UP[k] = PT_H->GetBinContent(k);
@@ -298,7 +348,7 @@ void cosinemod(){
       if(x_F_var > 0 ){
          // South and blue beam
          if(south_cut && r_ref_var < 180 && muoncharge_var ==1 ){
-            for(Int_t k =0; k< PT_H->GetNbinsX(); ++k){
+            for(Int_t k =1; k <= PT_H->GetNbinsX(); ++k){
                if(bluebeam_spin_pattern == 1 ){
                   
                   if (px_var < 0) SA_BB_PM_Event_L_UP[k]=PT_H->GetBinContent(k);
@@ -313,7 +363,7 @@ void cosinemod(){
             }
          }
          if(south_cut && r_ref_var < 180 && muoncharge_var == 0 ){
-            for(Int_t k =0; k< PT_H->GetNbinsX(); ++k){
+            for(Int_t k =1; k <= PT_H->GetNbinsX(); ++k){
                if(bluebeam_spin_pattern == 1 ){
                   
                   if (px_var < 0) SA_BB_NM_Event_L_UP[k]=PT_H->GetBinContent(k);
@@ -330,7 +380,7 @@ void cosinemod(){
          
          // north and yellow beam
          if(north_cut && r_ref_var < 180 && muoncharge_var == 1 ){
-            for(Int_t k =0; k< PT_H->GetNbinsX(); ++k){
+            for(Int_t k =1; k <= PT_H->GetNbinsX(); ++k){
                if(yellowbeam_spin_pattern == 1 ){
                   
                   if (px_var < 0) NO_YB_PM_Event_L_UP[k]=PT_H->GetBinContent(k);
@@ -346,7 +396,7 @@ void cosinemod(){
          }
          
          if(north_cut && r_ref_var < 180 && muoncharge_var == 0){
-            for(Int_t k =0; k< PT_H->GetNbinsX(); ++k){
+            for(Int_t k =1; k <= PT_H->GetNbinsX(); ++k){
                if(yellowbeam_spin_pattern == 1 ){
                   
                   if (px_var < 0) NO_YB_NM_Event_L_UP[k]=PT_H->GetBinContent(k);
@@ -375,14 +425,15 @@ void cosinemod(){
    
     std::cout<<"-----------------------------------------------------------------------------------------------------------------------------------------------"<<"\n";
    
-   for(Int_t j=0; j<8; ++j){
+   for(Int_t j=1; j<=8; ++j){
       
       //south & yellow
       Float_t var_1 = sqrt(SA_YB_PM_Event_L_UP[j] * SA_YB_PM_Event_R_DOWN[j]);
       Float_t var_2 = sqrt(SA_YB_PM_Event_L_DOWN[j] * SA_YB_PM_Event_R_UP[j]);
       epsilon_SA_YB_PM[j] = ((var_1 - var_2)/(var_1+var_2))/(polarization_yellow*cosPhi);
       epsilon_SA_YB_PMError[j] = (sqrt(SA_YB_PM_Event_L_UP[j]*SA_YB_PM_Event_R_DOWN[j]*SA_YB_PM_Event_L_DOWN[j] * SA_YB_PM_Event_R_UP[j])/((var_1+var_2)*(var_1+var_2)))*sqrt(1/SA_YB_PM_Event_L_UP[j] + 1/SA_YB_PM_Event_R_DOWN[j] + 1/SA_YB_PM_Event_L_DOWN[j] + 1/SA_YB_PM_Event_R_UP[j] );
-      
+     // if(run_h->GetBinCenter(j) != 0)std::cout<<" \t that was the run value "<<run_h->GetBinCenter(j)<<" \t Asymmetry value  "<<epsilon_SA_YB_PM[j]<<"\n";
+     // runxasymy_prof[j]->Fill(run_h->GetBinCenter(j),epsilon_SA_YB_PM[j], 1);
       
       
       Float_t var_3 = sqrt(SA_YB_NM_Event_L_UP[j] * SA_YB_NM_Event_R_DOWN[j]);
@@ -394,13 +445,13 @@ void cosinemod(){
       Float_t var_5 = sqrt(NO_BB_PM_Event_L_UP[j]*NO_BB_PM_Event_R_DOWN[j]);
       Float_t var_6 = sqrt(NO_BB_PM_Event_L_DOWN[j]*NO_BB_PM_Event_R_UP[j]);
       epsilon_NO_BB_PM[j] = ((var_5 - var_6)/(var_5+var_6))/(polarization_blue*cosPhi);
-      epsilon_NO_BB_PMError[j] = (sqrt(NO_BB_PM_Event_L_UP[j]*NO_BB_PM_Event_R_UP[j]*NO_BB_PM_Event_R_UP[j]*NO_BB_PM_Event_R_DOWN[j])/((var_5+var_6)*(var_5+var_6)))*sqrt(1/NO_BB_PM_Event_L_UP[j] + 1/NO_BB_PM_Event_R_DOWN[j] + 1/NO_BB_PM_Event_L_DOWN[j] + 1/ NO_BB_PM_Event_R_DOWN[j]);
+      epsilon_NO_BB_PMError[j] = (sqrt(NO_BB_PM_Event_L_UP[j]*NO_BB_PM_Event_R_UP[j]*NO_BB_PM_Event_R_UP[j]*NO_BB_PM_Event_R_DOWN[j])/((var_5+var_6)*(var_5+var_6)))*sqrt(1/NO_BB_PM_Event_L_UP[j] + 1/NO_BB_PM_Event_R_UP[j] + 1/NO_BB_PM_Event_L_DOWN[j] + 1/ NO_BB_PM_Event_R_DOWN[j]);
       
       
       Float_t var_7 = sqrt(NO_BB_NM_Event_L_UP[j]*NO_BB_NM_Event_R_DOWN[j]);
       Float_t var_8 = sqrt(NO_BB_NM_Event_L_DOWN[j]*NO_BB_NM_Event_R_UP[j]);
       epsilon_NO_BB_NM[j] = ((var_7 - var_8)/(var_7+var_8))/(polarization_blue*cosPhi);
-      epsilon_NO_BB_NMError[j] = (sqrt(NO_BB_NM_Event_L_UP[j]*NO_BB_NM_Event_R_UP[j]*NO_BB_NM_Event_R_UP[j]*NO_BB_NM_Event_R_DOWN[j])/((var_7+var_8)*(var_7+var_8)))*sqrt(1/NO_BB_NM_Event_L_UP[j] + 1/NO_BB_NM_Event_R_DOWN[j] + 1/NO_BB_NM_Event_L_DOWN[j] + 1/ NO_BB_NM_Event_R_DOWN[j]);
+      epsilon_NO_BB_NMError[j] = (sqrt(NO_BB_NM_Event_L_UP[j]*NO_BB_NM_Event_R_UP[j]*NO_BB_NM_Event_R_UP[j]*NO_BB_NM_Event_R_DOWN[j])/((var_7+var_8)*(var_7+var_8)))*sqrt(1/NO_BB_NM_Event_L_UP[j] + 1/NO_BB_NM_Event_R_UP[j] + 1/NO_BB_NM_Event_L_DOWN[j] + 1/ NO_BB_NM_Event_R_DOWN[j]);
       
       // South and blue
       
@@ -423,30 +474,59 @@ void cosinemod(){
       Float_t var_13 = sqrt(NO_YB_PM_Event_L_UP[j] * NO_YB_PM_Event_R_DOWN[j]);
       Float_t var_14 = sqrt(NO_YB_PM_Event_L_DOWN[j] * NO_YB_PM_Event_R_UP[j]);
       epsilon_NO_YB_PM[j] = ((var_13 - var_14)/(var_13+var_14))/(polarization_yellow*cosPhi);
-      epsilon_NO_YB_PMError[j] = (sqrt(NO_YB_PM_Event_L_UP[j]*NO_YB_PM_Event_R_UP[j]*NO_YB_PM_Event_R_UP[j]*NO_YB_PM_Event_R_DOWN[j])/((var_13+var_14)*(var_13+var_14)))*sqrt(1/NO_YB_PM_Event_L_UP[j] + 1/NO_YB_PM_Event_R_DOWN[j] + 1/NO_YB_PM_Event_L_DOWN[j] + 1/ NO_YB_PM_Event_R_DOWN[j]);
-      
+      epsilon_NO_YB_PMError[j] = (sqrt(NO_YB_PM_Event_L_UP[j]*NO_YB_PM_Event_R_UP[j]*NO_YB_PM_Event_L_DOWN[j]*NO_YB_PM_Event_R_DOWN[j])/((var_13+var_14)*(var_13+var_14)))*sqrt(1/NO_YB_PM_Event_L_UP[j] + 1/NO_YB_PM_Event_R_UP[j] + 1/NO_YB_PM_Event_L_DOWN[j] + 1/ NO_YB_PM_Event_R_DOWN[j]);
+     
      
       Float_t var_15 = sqrt(NO_YB_NM_Event_L_UP[j]*NO_YB_NM_Event_R_DOWN[j]);
       Float_t var_16 = sqrt(NO_YB_NM_Event_L_DOWN[j]*NO_YB_NM_Event_R_UP[j]);
       epsilon_NO_YB_NM[j] = ((var_15 - var_16)/(var_15 + var_16))/(polarization_yellow*cosPhi);
-      epsilon_NO_YB_NMError[j] = (sqrt(NO_YB_NM_Event_L_UP[j]*NO_YB_NM_Event_R_UP[j]*NO_YB_NM_Event_R_UP[j]*NO_YB_NM_Event_R_DOWN[j])/((var_15+var_16)*(var_15+var_16)))*sqrt(1/NO_YB_NM_Event_L_UP[j] + 1/NO_YB_NM_Event_R_DOWN[j] + 1/NO_YB_NM_Event_L_DOWN[j] + 1/ NO_YB_NM_Event_R_DOWN[j]);
+      epsilon_NO_YB_NMError[j] = (sqrt(NO_YB_NM_Event_L_UP[j]*NO_YB_NM_Event_L_DOWN[j]*NO_YB_NM_Event_R_UP[j]*NO_YB_NM_Event_R_DOWN[j])/((var_15+var_16)*(var_15+var_16)))*sqrt(1/NO_YB_NM_Event_L_UP[j] + 1/NO_YB_NM_Event_R_UP[j] + 1/NO_YB_NM_Event_L_DOWN[j] + 1/ NO_YB_NM_Event_R_DOWN[j]);
       
+      //std::cout<<" north yellow and positine & negative muon "<<epsilon_NO_YB_PM[j] <<"\t"<<epsilon_NO_YB_NM[j]<<"\n";
+      //std::cout<<" north yellow and positine & negative muon Error "<<epsilon_NO_YB_PMError[j]<<"\t"<<epsilon_NO_YB_NMError[j]<<"\n";
       
    }
    
    
+   TGraphErrors *gr_phi_sa_yb_pm[6];
    
-   
-   /*for(Int_t i=0; i<8; ++i){
-      for(Int_t j=0; j<12; ++j){
-         
-         Float_t var_1 = sqrt(PHI_SA_YB_PM_Event_R_UP[i][j] * PHI_SA_YB_PM_Event_R_DOWN[i][j]);
+   for(Int_t i=0; i<6; ++i){
+      for(Int_t j=1; j<=12; ++j){
+         if(PHI_SA_YB_PM_Event_L_UP[i][j] == 0)continue;
+         if(PHI_SA_YB_PM_Event_R_DOWN[i][j] == 0)continue;
+         if(PHI_SA_YB_PM_Event_L_DOWN[i][j] == 0)continue;
+         if(PHI_SA_YB_PM_Event_R_UP[i][j] == 0)continue;
+         Float_t var_1 = sqrt(PHI_SA_YB_PM_Event_L_UP[i][j] * PHI_SA_YB_PM_Event_R_DOWN[i][j]);
          Float_t var_2 = sqrt(PHI_SA_YB_PM_Event_L_DOWN[i][j] * PHI_SA_YB_PM_Event_R_UP[i][j]);
-         epsilon_PHI[j] = ((var_1 - var_2)/(var_1+var_2))/(polarization_yellow*cosPhi);
-        // std::cout<<"lets take the print out of this fellow raw asymmetry in phi case when jump to next pT bin "<<i<<": \t"<< epsilon_PHI[j] <<"\n";
+         epsilonPHI_SA_YB_PM[j] = ((var_1 - var_2)/((var_1 + var_2)*polarization_yellow));
+         epsilonPHI_SA_YB_PMError[j] = (sqrt(PHI_SA_YB_PM_Event_L_UP[i][j]*PHI_SA_YB_PM_Event_R_DOWN[i][j]*PHI_SA_YB_PM_Event_L_DOWN[i][j]* PHI_SA_YB_PM_Event_R_UP[i][j])/((var_1+var_2)*(var_1+var_2)))*sqrt(1/PHI_SA_YB_PM_Event_L_UP[i][j] + 1/PHI_SA_YB_PM_Event_R_DOWN[i][j] + 1/PHI_SA_YB_PM_Event_L_DOWN[i][j] + 1/ PHI_SA_YB_PM_Event_R_UP[i][j]);
+         
+        std::cout<<" raw asymmetry in phi case when jump to next pT bin "<<i<<": \t"<< epsilonPHI_SA_YB_PM[j]<<"\t"<<epsilonPHI_SA_YB_PMError[j]<<"\n";
          
       }
-   }*/
+      
+      auto fitform  = new TF1("fitform",cfunc,-3.14,3.14,1);
+      fitform->SetParameter(0,0.05);
+      fitform->SetParLimits(0,-1.0,1.0);
+      fitform->SetParName(0,"p0");
+      auto cm = new TCanvas("cm","Yellow : AN, X :phi",200,10,700,500);
+      gr_phi_sa_yb_pm[i] = new TGraphErrors(binnumphi,phi_diff,epsilonPHI_SA_YB_PM,phi_diffErr,epsilonPHI_SA_YB_PMError);
+      gr_phi_sa_yb_pm[i]->SetTitle("x_F < 0 :: Y : AN, X :PHI");
+      gr_phi_sa_yb_pm[i]->SetMarkerColor(1);
+      gr_phi_sa_yb_pm[i]->SetLineColor(1);
+      gr_phi_sa_yb_pm[i]->SetMarkerStyle(8);
+      gr_phi_sa_yb_pm[i]->GetXaxis()->SetTitle("#phi");
+      gr_phi_sa_yb_pm[i]->GetYaxis()->SetTitle("A_{N}");
+      gr_phi_sa_yb_pm[i]->Fit(fitform,"M");
+      TFitResultPtr cosinere =    gr_phi_sa_yb_pm[i]->Fit(fitform, "S");
+      TMatrixDSym cov_cosine = cosinere->GetCovarianceMatrix();
+      Double_t chi2_cosine   = cosinere->Chi2();
+      Double_t par0_cosine   = cosinere->Parameter(0);
+      Double_t err0_cosine   = cosinere->ParError(0);
+      cosinere->Print("V");
+      gr_phi_sa_yb_pm[i]->Draw("a p s ; ; 5 s=0.5");
+      cm->SaveAs(Form("/Users/md/Documents/Phenix_HF_Analysis/plots/cosine_plots/cosinemod%d.pdf",i));
+   }
    
    
  //-----------------------------------------------------------------------------------------------------------------------------------------------"<<"\n";
@@ -645,7 +725,6 @@ void cosinemod(){
     c2->GetFrame()->SetFillColor(21);
     c2->GetFrame()->SetBorderSize(12);
   */
-   
    
    
    

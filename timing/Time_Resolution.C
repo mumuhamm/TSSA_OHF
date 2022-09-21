@@ -44,7 +44,7 @@ void Time_Resolution(){
    TH1D * amp_diff_channel[channel_number];
    for(int i = 0; i<digitizer_number; ++i){
       for(int j = 0; j<channel_number; ++j){
-         amp_time_lappd[i][j] = new TProfile(Form("amplappd%dchannel%d",i,j),Form("amp_lappd_digitizer#_%d_channel#_%d;TS [ns];Amp [mV]",i,j),10,0.0,20,1,400);
+         amp_time_lappd[i][j] = new TProfile(Form("amplappd%dchannel%d",i,j),Form("amp_lappd_digitizer#_%d_channel#_%d;TS [ns];Amp [mV]",i,j),100,12000,18000,1,400);
       }
    }
    TFile * lfile = new TFile("/Users/md/Documents/Phenix_HF_Analysis/timediff_tree_00023342.root");//ltest-00023342.root");
@@ -59,7 +59,7 @@ void Time_Resolution(){
    Double_t planacon_timing_L03C_allpixel[24][24], tdiff_L03C_allpixel[24][24],amplitude_L03C_allpixel_for2D[24][24], tracelength_L03C_allpixel[24][24];
    Double_t baseline_L03C_allpixel[24][24], amplitude_L03C_allpixel[24][24];
    Double_t cluster_L03C_X,cluster_L03C_Y ,cluster_L03C_Time ,cluster_L03C_R,cluster_L03C_amplitude;
-   
+   Int_t sample;
    Double_t trig_t0, trig_t1, trig_t2, trig_t3;
    
    ltree->SetBranchAddress("lappd_aa",&lappd_aa[0][0]);
@@ -72,6 +72,7 @@ void Time_Resolution(){
    ltree->SetBranchAddress("cluster_L03C_Y",&cluster_L03C_Y);
    ltree->SetBranchAddress("cluster_L03C_R",&cluster_L03C_R);
    ltree->SetBranchAddress("cluster_L03C_Time",&cluster_L03C_Time);
+   ltree->SetBranchAddress("sample",&sample);
    
    
    ltree->SetBranchAddress("trig_t0",&trig_t0);
@@ -96,7 +97,7 @@ void Time_Resolution(){
    TH2F *hxvsy = new TH2F("hxvsy", "Cluster position x vs cluster position;Cluster position x ;Cluster position y", 24, -50.0,50,24, -50.0,50  );
     auto h2 = new TH2D("h2", "", 24, 0.0, 24, 24, 0.0, 24);
    for (unsigned i =0; i<channel_number; ++i){
-      time_r[i]= new TH1D(Form("mhistogram_%d", i), Form("diffrence_time_[%d-(%d-1)]", i,i), 100, -500.0, 500.0  );
+      time_r[i]= new TH1D(Form("mhistogram_%d", i), Form("#DeltaT_%dth_channel", i), 100, .0, 1  );
       amp_diff_channel[i]= new TH1D(Form("ammdiff_%d", i), Form("diffrence_amplitude_[%d-(%d-1)]", i,i), 100, -500, 500  );
    }
    TH1D * cluster_amplitude_h = new TH1D("cluster_amplitude_h", "cluster_amplitude", 100, 0, 40);
@@ -106,8 +107,8 @@ void Time_Resolution(){
    TH1D * cluster_L03C_R_h = new TH1D("cluster_L03C_R_h", "cluster_L03C_R", 100, 0,60);
    TH1D * cluster_L03C_Time_h = new TH1D("cluster_L03C_Time_h", "cluster_L03C_Time", 100, 0,20);
    TProfile *delTvsCh = new TProfile("delTvsCh", "delTvsCh; ChannelID; #Deltat", 32, 0, 32, -5, 5);
-  
-  
+   TH1D * baseline_h = new TH1D("baseline_h","baseline_h", 100, 0, 25);
+   TH1D * delt_rough_h = new TH1D("delt_rough_h","baseline_hdelt_rough_h", 100, 0, 1);
    for(int i = 0; i < ltree->GetEntries(); i++){
       ltree->GetEntry(i);
      //std::cout<<cluster_L03C_amplitude<<"\n";
@@ -120,21 +121,30 @@ void Time_Resolution(){
       
       for(int k =0; k<digitizer_number; ++k){
          for(int l =0 ; l<channel_number; ++l){
-            
-            Double_t amp = lappd_aa[k][l];
+            std::cout<<"sample size WF crosses the threshold  --:  "<<sample<<"\n";
+            Double_t baseline_check =lappd_baseline_val[k][l];
+            baseline_h->Fill(baseline_check);
+            //std::cout<<baseline_h->GetRMS()<<"\t rms value of the baseline"<<"\n";
+            if(lappd_aa[k][l] > 150 && lappd_aa[k][l] < 50 )continue;
+            Double_t amp = baseline_h->GetRMS()/lappd_aa[k][l];
+            //std::cout<<" baseline/amplitude"<< amp<<"\n";
+            Double_t delt_rough = amp*lappd_tt[k][l]/(sqrt(75.57)*1000);
+            delt_rough_h->Fill(delt_rough);
+            //std::cout<< " delta T "<<delt_rough<<"\n";
             Double_t tip[11][32];
             tip[k][l] = lappd_aa[k][l]>lappd_aa[k][l+1]? lappd_aa[k][l]:lappd_aa[k][l+1];
             
-            amp_time_lappd[k][l]->Fill(lappd_tt[k][l]/1000,lappd_aa[k][l], 1);
+            amp_time_lappd[k][l]->Fill(lappd_tt[k][l],lappd_aa[k][l], 1);
             Double_t diff = lappd_aa[k][l]-lappd_aa[k][l-1];
             Double_t tgt_diff = lappd_tt[k][l];
             if(lappd_aa[k][l]-lappd_aa[k][l-1]/lappd_aa[k][l] > 10) continue;
             //cout<<" clau"<<lappd_aa[k][l]-lappd_aa[k][l-1]/lappd_aa[k][l]<<"\n";
-            Double_t tdiff = (lappd_aa[k][l]-lappd_aa[k][l-1]/lappd_aa[k][l])*(lappd_tt[k][l]/sqrt(5*10E6*lappd_tt[k][l]));
+            Double_t tdiff = baseline_h->GetRMS()*(lappd_tt[k][l]/sqrt(5*10E6*lappd_tt[k][l]));
             //std::cout<<tdiff<<"\n";
             amp_diff_channel[l]->Fill(diff);
-            time_r[l]->Fill(tgt_diff/1000);
-            delTvsCh->Fill(l, tdiff, 1);
+            time_r[l]->Fill(delt_rough);
+            //std::cout<<" per channel wise :"<< l << "\t"<< time_r[l]->GetRMS()<<"\n";
+            delTvsCh->Fill(l, delt_rough, 1);
             //h2->SetBinContent(k, l, amp);
          }
       }
@@ -211,7 +221,7 @@ void Time_Resolution(){
          amp_time_lappd[k][l]->SetMarkerColor(1);
          amp_time_lappd[k][l]->SetMarkerSize(0.75);
          amp_time_lappd[k][l]->SetMarkerStyle(20);
-         c1->SaveAs(Form("/Users/md/Documents/Phenix_HF_Analysis/lappd_event/time/amp_time_template_%d_%d.png",k, l));
+         //c1->SaveAs(Form("/Users/md/Documents/Phenix_HF_Analysis/lappd_event/time/amp_time_template_%d_%d.png",k, l));
       }
       }
     TCanvas *c2 = new TCanvas();
@@ -229,6 +239,9 @@ void Time_Resolution(){
    c->cd(6);cluster_L03C_Time_h->Draw();
    
    TCanvas *td = new TCanvas("td", "td", 600, 600);
-   delTvsCh->Draw();
+   std::cout<<delt_rough_h->GetRMS()<<" (ps)\n";
+   delt_rough_h->Draw();
+   
+      //delTvsCh->Draw();
 
 }
