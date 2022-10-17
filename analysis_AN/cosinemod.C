@@ -223,7 +223,7 @@ void cosinemod(){
                   if (px_var < 0)SA_YB_PM_Event_L_DOWN[k] = PT_H->GetBinContent(k);
                   if (px_var > 0)SA_YB_PM_Event_R_DOWN[k] = PT_H->GetBinContent(k);
                }
-             //std::cout<<"index :--  "<<k<<"\t bin content:--  "<<SA_YB_PM_Event_L_UP[k]<<"\n";
+             
             }
          }
          
@@ -492,10 +492,10 @@ void cosinemod(){
    
    for(Int_t i=0; i<6; ++i){
       for(Int_t j=1; j<=12; ++j){
-         if(PHI_SA_YB_PM_Event_L_UP[i][j] == 0)continue;
+        /* if(PHI_SA_YB_PM_Event_L_UP[i][j] == 0)continue;
          if(PHI_SA_YB_PM_Event_R_DOWN[i][j] == 0)continue;
          if(PHI_SA_YB_PM_Event_L_DOWN[i][j] == 0)continue;
-         if(PHI_SA_YB_PM_Event_R_UP[i][j] == 0)continue;
+         if(PHI_SA_YB_PM_Event_R_UP[i][j] == 0)continue;*/
          Float_t var_1 = sqrt(PHI_SA_YB_PM_Event_L_UP[i][j] * PHI_SA_YB_PM_Event_R_DOWN[i][j]);
          Float_t var_2 = sqrt(PHI_SA_YB_PM_Event_L_DOWN[i][j] * PHI_SA_YB_PM_Event_R_UP[i][j]);
          epsilonPHI_SA_YB_PM[j] = ((var_1 - var_2)/((var_1 + var_2)*polarization_yellow));
@@ -517,15 +517,15 @@ void cosinemod(){
       gr_phi_sa_yb_pm[i]->SetMarkerStyle(8);
       gr_phi_sa_yb_pm[i]->GetXaxis()->SetTitle("#phi");
       gr_phi_sa_yb_pm[i]->GetYaxis()->SetTitle("A_{N}");
-      gr_phi_sa_yb_pm[i]->Fit(fitform,"M");
+      /*gr_phi_sa_yb_pm[i]->Fit(fitform,"M");
       TFitResultPtr cosinere =    gr_phi_sa_yb_pm[i]->Fit(fitform, "S");
       TMatrixDSym cov_cosine = cosinere->GetCovarianceMatrix();
       Double_t chi2_cosine   = cosinere->Chi2();
       Double_t par0_cosine   = cosinere->Parameter(0);
       Double_t err0_cosine   = cosinere->ParError(0);
-      cosinere->Print("V");
+      cosinere->Print("V");*/
       gr_phi_sa_yb_pm[i]->Draw("a p s ; ; 5 s=0.5");
-      cm->SaveAs(Form("/Users/md/Documents/Phenix_HF_Analysis/plots/cosine_plots/cosinemod%d.pdf",i));
+      //cm->SaveAs(Form("/Users/md/Documents/Phenix_HF_Analysis/plots/cosine_plots/cosinemod%d.pdf",i));
    }
    
    
