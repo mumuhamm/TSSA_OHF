@@ -553,7 +553,7 @@ void asymmetry_analyzer::FillDiagnosticHistos(float weight){
       }*/
    }
 }
-void run_cuts::SetpTArrays(){
+void asymmetry_analyzer::SetpTArrays(){
    
    
    

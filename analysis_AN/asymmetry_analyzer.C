@@ -154,6 +154,24 @@ void asymmetry_analyzer::Loop()
       cut_vertex_chi2__ = hcut_vertex_chi2[_arm][smlastgap]->GetBinContent(hcut_vertex_chi2[_arm][smlastgap]->FindBin(pT));
      
       
+      if ( smlastgap==4 ){
+         if (
+            // _rf_slope>cut_road_slope__ //1
+             ref_rad < cut_vertex_rad__ //2
+             && smdg0<cut_dg0__ //3
+             && smddg0<cut_ddg0__ //4
+             && smtrchi2<cut_mutr_chi2__ //5
+             && smidchi2<cut_muid_chi2__ //6
+             && pdtheta<cut_pdtheta__ //7
+             && chi2_trk_vtx<cut_vertex_chi2__ //8
+             ){
+            avg_pT_varbin[_arm][smcharge]->Fill(pT, pT, weight_by_thrown_pt);
+            avg_pT_varbin_gap[_arm][smlastgap][smcharge]->Fill(pT, pT, weight_by_thrown_pt);
+            avg_p[_arm][smlastgap][smcharge]->Fill(pT, sqrt(pT*pT+smpz*smpz), weight_by_thrown_pt);
+            avg_pT_AN_pz[_arm][smcharge]->Fill(fabs(smpz), pT, weight_by_thrown_pt);
+         }
+      }
+      
      // std::cout<< " arm :\t"<<_arm<<"\t gap \t "<< smlastgap<< "\t vt dg0 \t"<<cut_dg0__<<  "\t"<< smdg0<<"\n";
       //Fill cut variable distributions
       //std::cout<<pT << "\t"<< cut_dg0__ << "\t"<<  cut_ddg0__<< "\t"<< ref_rad<< "\t"<<cut_vertex_rad__<< "\t"<< cut_vertex_chi2__<<"\n";
@@ -223,7 +241,7 @@ void asymmetry_analyzer::Cuts()
 }
 
 void asymmetry_analyzer::BookHistos(){
-   
+   char hname[200];
    for (int iarm=0; iarm<narm; iarm++){
       for (int ich=0; ich<ncharge; ich++){
             // variable bin pT profile
@@ -297,14 +315,8 @@ void asymmetry_analyzer::BookHistos(){
          sprintf(hname, "pdtheta_arm%d_gap%d", iarm, jgap);
          PDTHETA[iarm][jgap] = new TH2F(hname,hname,nptbin,varbin_pTarray,50,0.0,1.0);
          PDTHETA[iarm][jgap]->Sumw2();
-            //PDTHETA_FAKE
-         sprintf(hname, "pdtheta_fake_arm%d_gap%d", iarm, jgap);
-         PDTHETA_FAKE[iarm][jgap] = new TH2F(hname,hname,nptbin,varbin_pTarray,50,0.0,1.0);
-         PDTHETA_FAKE[iarm][jgap]->Sumw2();
-            //PDTHETA_OUT
-         sprintf(hname, "pdtheta_out_arm%d_gap%d", iarm, jgap);
-         PDTHETA_OUT[iarm][jgap] = new TH2F(hname,hname,nptbin,varbin_pTarray,50,0.0,1.0);
-         PDTHETA_OUT[iarm][jgap]->Sumw2();
+            
+        
       }//GAP-2
       }//ARM
 }
